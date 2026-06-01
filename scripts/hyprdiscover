@@ -2,9 +2,20 @@
 
 APP="$HOME/.local/share/hyprdiscover/hyprdiscover.py"
 
-if pgrep -f "$APP" >/dev/null
+# Jika argumen berisi '--waybar', langsung bypass logika single-instance UI
+if [[ "$*" == *"--waybar"* ]]; then
+    python3 "$APP" "$@"
+    exit 0
+fi
+
+# Cek apakah proses UI utama sudah berjalan (mengecualikan proses --waybar jika ada)
+# Kita gunakan pgrep dengan filter argumen yang presisi
+if pgrep -f "python3 $APP" | grep -v -- "--waybar" >/dev/null
 then
-    hyprctl dispatch focuswindow title:HyprDiscover
+    # Gunakan 'class' GTK yang jauh lebih akurat di Hyprland dibanding 'title'
+    hyprctl dispatch focuswindow "class:^(com.hyprdiscover.app)$" || \
+    hyprctl dispatch focuswindow "title:^(HyprDiscover)$"
 else
+    # Jika UI belum berjalan, eksekusi seperti biasa beserta argumennya
     python3 "$APP" "$@"
 fi
