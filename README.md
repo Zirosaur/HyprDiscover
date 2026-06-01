@@ -63,6 +63,10 @@ The goal of this project is to deliver a native, simple, and efficient update ex
 
 ---
 
+## Screenshot
+
+![HyprDiscover](assets/main-window.png)
+
 ## Why HyprDiscover?
 
 Fedora users running Hyprland often rely on:
