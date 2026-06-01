@@ -129,7 +129,7 @@ class HyprDiscover(Gtk.Application):
     def run_update(self):
         try:
             result = subprocess.run(
-                ["pkexec", "pkcon", "update"],
+                ["pkcon", "update"],
                 capture_output=True,
                 text=True
             )
