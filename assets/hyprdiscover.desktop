@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=HyprDiscover
+Comment=Modern update manager for Fedora Hyprland
+Exec=hyprdiscover
+Icon=hyprdiscover
+Terminal=false
+Categories=System;
+StartupNotify=true
+Keywords=update;package;fedora;hyprland;

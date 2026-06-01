@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+APP="$HOME/.local/share/hyprdiscover/hyprdiscover.py"
+
+if pgrep -f "$APP" >/dev/null
+then
+    hyprctl dispatch focuswindow title:HyprDiscover
+else
+    python3 "$APP" "$@"
+fi

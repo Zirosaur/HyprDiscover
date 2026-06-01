@@ -14,58 +14,26 @@ The goal of this project is to deliver a native, simple, and efficient update ex
 
 * GTK4-based graphical interface
 * PackageKit integration
-* Check available system updates
-* Install updates directly from the GUI
-* Update status reporting
+* Update detection
+* Update installation
 * Transaction log viewer
-* Reboot button after successful updates
-* KDE Discover integration
-* Waybar integration support
-
----
-
-## Planned Features
-
-### v0.2
-
-* Improved user interface
 * Scrollable update logs
-* Better error handling
+* Update status reporting
 * Button state management during updates
-
-### v0.3
-
-* Package list view
-* Update categories
-* Update size information
-
-### v0.4
-
+* Reboot button after successful updates
+* About dialog
+* KDE Discover integration
 * Native Waybar integration
-* Desktop notifications
-
-### v0.5
-
-* Flatpak update support
-
-### v0.6
-
-* Native PackageKit D-Bus integration
-* Removal of pkcon dependency
-
-### v0.7
-
-* Offline updates
-
-### v1.0
-
-* Production-ready Fedora Hyprland update manager
+* Waybar JSON output mode (`--waybar`)
+* Single-instance launcher
 
 ---
 
 ## Screenshot
 
 ![HyprDiscover](assets/main-window.png)
+
+---
 
 ## Why HyprDiscover?
 
@@ -111,6 +79,53 @@ The project focuses on:
 
 ---
 
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Zirosaur/HyprDiscover.git
+cd HyprDiscover
+```
+
+Install launcher:
+
+```bash
+./install.sh
+```
+
+Launch application:
+
+```bash
+hyprdiscover
+```
+
+---
+
+## Waybar Integration
+
+Add the following module to your Waybar configuration:
+
+```json
+"custom/updates": {
+    "exec": "hyprdiscover --waybar",
+    "return-type": "json",
+    "format": "{}",
+    "on-click": "hyprdiscover",
+    "interval": 3600,
+    "tooltip": true
+}
+```
+
+Reload Waybar:
+
+```bash
+pkill waybar
+waybar &
+```
+
+---
+
 ## Security
 
 HyprDiscover never runs as root.
@@ -132,25 +147,28 @@ For more information see:
 
 ## Project Documentation
 
-* README.md
+Additional documentation is available:
+
 * PRD.md
 * ARCHITECTURE.md
 * SECURITY.md
+* ROADMAP.md
+* CONTRIBUTING.md
 
 ---
 
 ## Target Platforms
 
-Primary target:
+### Primary Target
 
 * Fedora Linux
 * Hyprland
 
-Future compatibility:
+### Future Compatibility
 
 * Sway
-* River
 * Niri
+* River
 * Other Wayland compositors
 
 ---
@@ -159,44 +177,7 @@ Future compatibility:
 
 Current development stage:
 
-**MVP (Minimum Viable Product)**
-
-Implemented:
-
-* Update checking
-* Update installation
-* Status reporting
-* Reboot integration
-
-Development is active and new features are being added regularly.
-
----
-
-## ## License
-
-HyprDiscover is licensed under the GNU General Public License v3.0 (GPLv3).
-
-See the [LICENSE](LICENSE) file for the full license text.
-
----
-
-## Project Documentation
-
-Additional documentation is available:
-
-* [PRD.md](PRD.md) – Product Requirements Document
-* [ARCHITECTURE.md](ARCHITECTURE.md) – System architecture and design
-* [SECURITY.md](SECURITY.md) – Security model and privilege management
-* [ROADMAP.md](ROADMAP.md) – Development roadmap
-* [CONTRIBUTING.md](CONTRIBUTING.md) – Contribution guidelines
-
----
-
-## Status
-
-Current development stage:
-
-**v0.1.0 – MVP (Minimum Viable Product)**
+**v0.2.0-dev**
 
 Implemented:
 
@@ -205,10 +186,56 @@ Implemented:
 * Transaction logging
 * PackageKit integration
 * Reboot integration
-* KDE Discover integration
-* Waybar integration support
+* About dialog
+* Native Waybar integration
+* Single-instance launcher
+* Installation script
 
-Development is active and new features are planned for upcoming releases.
+Development is active and new features are planned for future releases.
+
+---
+
+## Planned Features
+
+### v0.3
+
+* Package list view
+* Update categories
+* Package size information
+* Better package details
+
+### v0.4
+
+* Desktop notifications
+* Automatic update checks
+* Background refresh
+
+### v0.5
+
+* Flatpak support
+* Unified update view
+
+### v0.6
+
+* Native PackageKit D-Bus integration
+* Removal of pkcon dependency
+
+### v0.7
+
+* Offline updates
+* Reboot-and-install workflow
+
+### v1.0
+
+* Production-ready Fedora Hyprland update manager
+
+---
+
+## License
+
+HyprDiscover is licensed under the GNU General Public License v3.0 (GPLv3).
+
+See the LICENSE file for the full license text.
 
 ---
 
@@ -216,7 +243,7 @@ Development is active and new features are planned for upcoming releases.
 
 Contributions, bug reports, feature requests, and pull requests are welcome.
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
+Please read CONTRIBUTING.md before submitting changes.
 
 ---
 

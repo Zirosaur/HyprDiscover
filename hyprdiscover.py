@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import sys
+import json
 import gi
 gi.require_version("Gtk", "4.0")
 
@@ -7,6 +9,57 @@ from gi.repository import Gtk, GLib
 import subprocess
 import threading
 
+
+# ==========================================
+# Waybar Mode
+# ==========================================
+
+if "--waybar" in sys.argv:
+    try:
+        result = subprocess.run(
+            ["pkcon", "get-updates"],
+            capture_output=True,
+            text=True
+        )
+
+        output = result.stdout + result.stderr
+
+        count = sum(
+            1 for line in output.splitlines()
+            if any(
+                line.startswith(x)
+                for x in [
+                    "Tersedia",
+                    "Keamanan",
+                    "Perbaikan kutu",
+                    "Enhancement"
+                ]
+            )
+        )
+
+        if count > 0:
+            print(json.dumps({
+                "text": f"󰚰 {count}",
+                "tooltip": f"{count} updates available"
+            }))
+        else:
+            print(json.dumps({
+                "text": "󰄬",
+                "tooltip": "System up to date"
+            }))
+
+    except Exception:
+        print(json.dumps({
+            "text": "⚠",
+            "tooltip": "Unable to check updates"
+        }))
+
+    sys.exit(0)
+
+
+# ==========================================
+# GUI Application
+# ==========================================
 
 class HyprDiscover(Gtk.Application):
 
@@ -41,14 +94,24 @@ class HyprDiscover(Gtk.Application):
         self.text.set_editable(False)
         self.text.set_monospace(True)
 
-        refresh_btn = Gtk.Button(label="Refresh")
-        refresh_btn.connect(
+        scroll = Gtk.ScrolledWindow()
+        scroll.set_vexpand(True)
+        scroll.set_child(self.text)
+
+        self.refresh_btn = Gtk.Button(
+            label="Refresh"
+        )
+
+        self.refresh_btn.connect(
             "clicked",
             self.refresh
         )
 
-        update_btn = Gtk.Button(label="Update")
-        update_btn.connect(
+        self.update_btn = Gtk.Button(
+            label="Update"
+        )
+
+        self.update_btn.connect(
             "clicked",
             self.update_system
         )
@@ -62,6 +125,15 @@ class HyprDiscover(Gtk.Application):
             self.open_discover
         )
 
+        about_btn = Gtk.Button(
+            label="About"
+        )
+
+        about_btn.connect(
+            "clicked",
+            self.show_about
+        )
+
         self.reboot_btn = Gtk.Button(
             label="Reboot"
         )
@@ -73,17 +145,20 @@ class HyprDiscover(Gtk.Application):
 
         self.reboot_btn.set_visible(False)
 
-        buttons = Gtk.Box(spacing=10)
+        buttons = Gtk.Box(
+            spacing=10
+        )
 
-        buttons.append(refresh_btn)
-        buttons.append(update_btn)
+        buttons.append(self.refresh_btn)
+        buttons.append(self.update_btn)
         buttons.append(discover_btn)
+        buttons.append(about_btn)
         buttons.append(self.reboot_btn)
 
         box.append(self.label)
         box.append(self.progress)
         box.append(buttons)
-        box.append(self.text)
+        box.append(scroll)
 
         self.win.set_child(box)
 
@@ -123,7 +198,7 @@ class HyprDiscover(Gtk.Application):
 
             if count == 0:
                 self.label.set_text(
-                    "System already up to date"
+                    "✓ System is up to date"
                 )
             else:
                 self.label.set_text(
@@ -149,6 +224,10 @@ class HyprDiscover(Gtk.Application):
         )
 
     def update_system(self, button):
+
+        self.refresh_btn.set_sensitive(False)
+        self.update_btn.set_sensitive(False)
+
         self.progress.set_visible(True)
         self.progress.set_fraction(0.0)
 
@@ -190,8 +269,6 @@ class HyprDiscover(Gtk.Application):
                 result.stderr
             )
 
-            print(output)
-
             if (
                 "Tak ada paket" in output
                 or "Tidak ada paket" in output
@@ -201,12 +278,22 @@ class HyprDiscover(Gtk.Application):
 
                 GLib.idle_add(
                     self.label.set_text,
-                    "System already up to date"
+                    "✓ System is up to date"
                 )
 
                 GLib.idle_add(
                     self.progress.set_visible,
                     False
+                )
+
+                GLib.idle_add(
+                    self.refresh_btn.set_sensitive,
+                    True
+                )
+
+                GLib.idle_add(
+                    self.update_btn.set_sensitive,
+                    True
                 )
 
                 GLib.idle_add(
@@ -246,13 +333,18 @@ class HyprDiscover(Gtk.Application):
             )
 
     def update_finished(self, success):
+
         self.running = False
+
+        self.refresh_btn.set_sensitive(True)
+        self.update_btn.set_sensitive(True)
 
         self.progress.set_visible(False)
 
         if success:
+
             self.label.set_text(
-                "Update completed successfully"
+                "✓ Updates installed successfully"
             )
 
             self.reboot_btn.set_visible(True)
@@ -260,9 +352,42 @@ class HyprDiscover(Gtk.Application):
             self.refresh(None)
 
         else:
+
             self.label.set_text(
                 "Update failed"
             )
+
+    def show_about(self, button):
+
+        dialog = Gtk.AboutDialog()
+
+        dialog.set_transient_for(
+            self.win
+        )
+
+        dialog.set_modal(True)
+
+        dialog.set_program_name(
+            "HyprDiscover"
+        )
+
+        dialog.set_version(
+            "0.2.0-dev"
+        )
+
+        dialog.set_comments(
+            "Modern update manager for Fedora Hyprland"
+        )
+
+        dialog.set_website(
+            "https://github.com/Zirosaur/HyprDiscover"
+        )
+
+        dialog.set_authors([
+            "Zirosaur"
+        ])
+
+        dialog.present()
 
     def reboot_system(self, button):
         subprocess.Popen(

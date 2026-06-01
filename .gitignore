@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+
+# VS Code
+.vscode/
+
+# Build artifacts
+build/
+dist/
+
+# GTK cache
+*.cache
+
+# Temporary files
+*.tmp
+*.swp
+
+# Fedora / Linux
+.DS_Store
