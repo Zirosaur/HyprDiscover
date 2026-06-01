@@ -172,9 +172,43 @@ Development is active and new features are being added regularly.
 
 ---
 
-## License
+## ## License
 
-License will be added before the first stable release.
+HyprDiscover is licensed under the GNU General Public License v3.0 (GPLv3).
+
+See the [LICENSE](LICENSE) file for the full license text.
+
+---
+
+## Project Documentation
+
+Additional documentation is available:
+
+* [PRD.md](PRD.md) – Product Requirements Document
+* [ARCHITECTURE.md](ARCHITECTURE.md) – System architecture and design
+* [SECURITY.md](SECURITY.md) – Security model and privilege management
+* [ROADMAP.md](ROADMAP.md) – Development roadmap
+* [CONTRIBUTING.md](CONTRIBUTING.md) – Contribution guidelines
+
+---
+
+## Status
+
+Current development stage:
+
+**v0.1.0 – MVP (Minimum Viable Product)**
+
+Implemented:
+
+* Update detection
+* Update installation
+* Transaction logging
+* PackageKit integration
+* Reboot integration
+* KDE Discover integration
+* Waybar integration support
+
+Development is active and new features are planned for upcoming releases.
 
 ---
 
@@ -182,4 +216,12 @@ License will be added before the first stable release.
 
 Contributions, bug reports, feature requests, and pull requests are welcome.
 
-Help build the update manager Hyprland users deserve.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
+
+---
+
+## Acknowledgements
+
+This project is inspired by the simplicity of modern Linux update managers while focusing specifically on the needs of Fedora Hyprland users.
+
+HyprDiscover aims to provide a lightweight, native update experience without requiring a full desktop environment.
