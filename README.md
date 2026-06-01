@@ -1,3 +1,6 @@
+![GitHub release](https://img.shields.io/github/v/release/Zirosaur/HyprDiscover)
+![License](https://img.shields.io/github/license/Zirosaur/HyprDiscover)
+
 # HyprDiscover
 
 A modern update manager for Fedora Hyprland.
