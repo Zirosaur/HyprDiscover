@@ -18,7 +18,7 @@ def get_updates():
             for x in [
                 "Tersedia",
                 "Keamanan",
-                "Perbaikan kutu",
+                "Perbaikan bug",
                 "Enhancement"
             ]
         )

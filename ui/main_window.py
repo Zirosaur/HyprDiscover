@@ -222,9 +222,9 @@ class HyprDiscover(Gtk.Application):
                 f"Error:\n\n{e}"
             )
         
-            self.last_checked.set_text(
-                f"Last checked: {get_timestamp()}"
-            )
+        self.last_checked.set_text(
+            f"Last checked: {get_timestamp()}"
+        )
 
 
     def open_discover(

@@ -1,5 +1,6 @@
 ![GitHub release](https://img.shields.io/github/v/release/Zirosaur/HyprDiscover)
 ![License](https://img.shields.io/github/license/Zirosaur/HyprDiscover)
+![GitHub stars](https://img.shields.io/github/stars/Zirosaur/HyprDiscover)
 
 # HyprDiscover
 
@@ -29,6 +30,13 @@ The goal of this project is to deliver a native, simple, and efficient update ex
 * Native Waybar integration
 * Waybar JSON output mode (`--waybar`)
 * Single-instance launcher
+* Last checked timestamp
+* Desktop notifications
+* Modular architecture (core/ + ui/)
+* Desktop launcher integration
+* Application menu integration
+* SVG application icon
+* Installation script
 
 ---
 
@@ -94,6 +102,11 @@ cd HyprDiscover
 Install launcher:
 
 ```bash
+chmod +x install.sh
+```
+
+
+```bash
 ./install.sh
 ```
 
@@ -126,6 +139,7 @@ Reload Waybar:
 pkill waybar
 waybar &
 ```
+HyprDiscover provides a native Waybar output mode and does not require external update scripts.
 
 ---
 
@@ -180,7 +194,7 @@ Additional documentation is available:
 
 Current development stage:
 
-**v0.2.0-dev**
+**v0.2.1**
 
 Implemented:
 
@@ -190,9 +204,14 @@ Implemented:
 * PackageKit integration
 * Reboot integration
 * About dialog
+* Last checked status
+* Desktop notifications
 * Native Waybar integration
 * Single-instance launcher
+* Desktop launcher integration
+* Application icon support
 * Installation script
+* Modular architecture
 
 Development is active and new features are planned for future releases.
 
