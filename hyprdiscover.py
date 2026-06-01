@@ -11,10 +11,15 @@ import threading
 class HyprDiscover(Gtk.Application):
 
     def __init__(self):
-        super().__init__(application_id="com.hyprdiscover.app")
+        super().__init__(
+            application_id="com.hyprdiscover.app"
+        )
 
     def do_activate(self):
-        self.win = Gtk.ApplicationWindow(application=self)
+        self.win = Gtk.ApplicationWindow(
+            application=self
+        )
+
         self.win.set_title("HyprDiscover")
         self.win.set_default_size(700, 500)
 
@@ -37,19 +42,39 @@ class HyprDiscover(Gtk.Application):
         self.text.set_monospace(True)
 
         refresh_btn = Gtk.Button(label="Refresh")
-        refresh_btn.connect("clicked", self.refresh)
+        refresh_btn.connect(
+            "clicked",
+            self.refresh
+        )
 
         update_btn = Gtk.Button(label="Update")
-        update_btn.connect("clicked", self.update_system)
+        update_btn.connect(
+            "clicked",
+            self.update_system
+        )
 
-        discover_btn = Gtk.Button(label="Open Discover")
-        discover_btn.connect("clicked", self.open_discover)
+        discover_btn = Gtk.Button(
+            label="Open Discover"
+        )
 
-        self.reboot_btn = Gtk.Button(label="Reboot")
-        self.reboot_btn.connect("clicked", self.reboot_system)
+        discover_btn.connect(
+            "clicked",
+            self.open_discover
+        )
+
+        self.reboot_btn = Gtk.Button(
+            label="Reboot"
+        )
+
+        self.reboot_btn.connect(
+            "clicked",
+            self.reboot_system
+        )
+
         self.reboot_btn.set_visible(False)
 
         buttons = Gtk.Box(spacing=10)
+
         buttons.append(refresh_btn)
         buttons.append(update_btn)
         buttons.append(discover_btn)
@@ -66,11 +91,21 @@ class HyprDiscover(Gtk.Application):
 
         self.win.present()
 
+    def show_log(self, text):
+        buf = self.text.get_buffer()
+        buf.set_text(text)
+
     def refresh(self, button):
         try:
-            output = subprocess.check_output(
+            result = subprocess.run(
                 ["pkcon", "get-updates"],
+                capture_output=True,
                 text=True
+            )
+
+            output = (
+                result.stdout +
+                result.stderr
             )
 
             count = sum(
@@ -86,25 +121,43 @@ class HyprDiscover(Gtk.Application):
                 )
             )
 
-            self.label.set_text(
-                f"󰚰 {count} updates available"
-            )
+            if count == 0:
+                self.label.set_text(
+                    "System already up to date"
+                )
+            else:
+                self.label.set_text(
+                    f"󰚰 {count} updates available"
+                )
 
-            buf = self.text.get_buffer()
-            buf.set_text(output)
+            self.show_log(output)
 
         except Exception as e:
-            self.label.set_text(str(e))
+            print(f"Refresh error: {e}")
+
+            self.label.set_text(
+                "Unable to check for updates"
+            )
+
+            self.show_log(
+                f"Error:\n\n{e}"
+            )
 
     def open_discover(self, button):
-        subprocess.Popen(["plasma-discover"])
+        subprocess.Popen(
+            ["plasma-discover"]
+        )
 
     def update_system(self, button):
         self.progress.set_visible(True)
         self.progress.set_fraction(0.0)
+
         self.reboot_btn.set_visible(False)
 
-        self.label.set_text("Updating packages...")
+        self.label.set_text(
+            "Updating packages..."
+        )
+
         self.running = True
 
         GLib.timeout_add(
@@ -112,12 +165,10 @@ class HyprDiscover(Gtk.Application):
             self.pulse
         )
 
-        thread = threading.Thread(
+        threading.Thread(
             target=self.run_update,
             daemon=True
-        )
-
-        thread.start()
+        ).start()
 
     def pulse(self):
         if self.running:
@@ -158,7 +209,17 @@ class HyprDiscover(Gtk.Application):
                     False
                 )
 
+                GLib.idle_add(
+                    self.show_log,
+                    output
+                )
+
                 return
+
+            GLib.idle_add(
+                self.show_log,
+                output
+            )
 
             if result.returncode == 0:
                 GLib.idle_add(
@@ -172,7 +233,12 @@ class HyprDiscover(Gtk.Application):
                 )
 
         except Exception as e:
-            print(e)
+            print(f"Update error: {e}")
+
+            GLib.idle_add(
+                self.show_log,
+                str(e)
+            )
 
             GLib.idle_add(
                 self.update_finished,
@@ -182,7 +248,6 @@ class HyprDiscover(Gtk.Application):
     def update_finished(self, success):
         self.running = False
 
-        self.progress.set_fraction(1.0)
         self.progress.set_visible(False)
 
         if success:
@@ -200,10 +265,9 @@ class HyprDiscover(Gtk.Application):
             )
 
     def reboot_system(self, button):
-        subprocess.Popen([
-            "systemctl",
-            "reboot"
-        ])
+        subprocess.Popen(
+            ["systemctl", "reboot"]
+        )
 
 
 app = HyprDiscover()
