@@ -1,0 +1,153 @@
+@define-color accent_color #3584e4;
+@define-color accent_bg_color #3584e4;
+@define-color destructive_color #e01b24;
+@define-color success_color #33d17a;
+@define-color warning_color #f5c211;
+@define-color error_color #e01b24;
+
+.main-window {
+    background-color: @window_bg_color;
+}
+
+/* ── Summary Card ─────────────────────────────────────── */
+
+.summary-card {
+    padding: 24px 16px 16px 16px;
+    background-color: alpha(@window_fg_color, 0.03);
+    border: 1px solid alpha(@window_fg_color, 0.08);
+    border-radius: 12px;
+}
+
+.summary-icon {
+    font-size: 42px;
+    margin-bottom: 6px;
+}
+
+.summary-icon-ok {
+    color: @success_color;
+}
+
+.summary-icon-warning {
+    color: @warning_color;
+}
+
+.summary-headline {
+    font-size: 1.15em;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.summary-category-label {
+    font-size: 0.95em;
+    margin-right: 8px;
+}
+
+.summary-category-count {
+    font-size: 0.95em;
+    font-weight: bold;
+    min-width: 2em;
+}
+
+.summary-grid {
+    margin-top: 12px;
+    margin-bottom: 4px;
+}
+
+/* ── Status Labels ────────────────────────────────────── */
+
+.success-label {
+    color: @success_color;
+    font-weight: bold;
+}
+
+.warning-label {
+    color: @warning_color;
+    font-weight: bold;
+}
+
+.error-label {
+    color: @error_color;
+    font-weight: bold;
+}
+
+.progress-label {
+    color: @accent_color;
+}
+
+.dim-label {
+    color: alpha(@window_fg_color, 0.45);
+}
+
+.checking-label {
+    color: @accent_color;
+}
+
+.caption {
+    font-size: 0.85em;
+    color: alpha(@window_fg_color, 0.55);
+}
+
+/* ── Expander ──────────────────────────────────────────── */
+
+expander {
+    margin-top: 4px;
+}
+
+expander > title {
+    font-weight: 600;
+    font-size: 1em;
+}
+
+expander > title > arrow {
+    margin-right: 4px;
+}
+
+/* ── Package List ──────────────────────────────────────── */
+
+.rich-list {
+    background: transparent;
+}
+
+.rich-list row {
+    padding: 3px 8px;
+}
+
+.rich-list row:selected {
+    background-color: alpha(@accent_bg_color, 0.12);
+    color: @window_fg_color;
+}
+
+/* ── Log View ──────────────────────────────────────────── */
+
+.log-scroller {
+    min-height: 0;
+}
+
+.log-view {
+    font-family: monospace;
+    font-size: 0.85em;
+    padding: 8px;
+    background-color: alpha(@window_fg_color, 0.03);
+    border: 1px solid alpha(@window_fg_color, 0.06);
+    border-radius: 6px;
+}
+
+.log-view text {
+    background: transparent;
+}
+
+/* ── Buttons ───────────────────────────────────────────── */
+
+button.suggested-action {
+    font-weight: bold;
+}
+
+button.destructive-action {
+    color: @destructive_color;
+}
+
+/* ── Misc ──────────────────────────────────────────────── */
+
+.title-3 {
+    font-weight: 600;
+}

@@ -1,0 +1,2 @@
+[console_scripts]
+hyprdiscover = hyprdiscover.__main__:main

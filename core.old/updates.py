@@ -1,27 +1,28 @@
 import subprocess
 
+UPDATE_TYPES = (
+    "Available",
+    "Security",
+    "Bug fix",
+    "Enhancement",
+)
+
 
 def get_updates():
 
     result = subprocess.run(
-        ["pkcon", "get-updates"],
+        ["pkcon", "--plain", "get-updates"],
         capture_output=True,
-        text=True
+        text=True,
+        env={"LANG": "C"}
     )
 
     output = result.stdout + result.stderr
 
     count = sum(
-        1 for line in output.splitlines()
-        if any(
-            line.startswith(x)
-            for x in [
-                "Tersedia",
-                "Keamanan",
-                "Perbaikan bug",
-                "Enhancement"
-            ]
-        )
+        1
+        for line in output.splitlines()
+        if line.startswith(UPDATE_TYPES)
     )
 
     return count, output

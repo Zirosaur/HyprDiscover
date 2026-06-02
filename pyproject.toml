@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hyprdiscover"
+version = "0.3.0-dev"
+description = "Modern update manager for Fedora Hyprland"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [{name = "Zirosaur"}]
+keywords = ["fedora", "hyprland", "packagekit", "update-manager", "gtk4"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: X11 Applications :: GTK",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Desktop Environment",
+    "Topic :: System :: Software Distribution",
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pygobject>=3.46",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "ruff>=0.11",
+    "mypy>=1.15",
+]
+test = [
+    "pytest>=8",
+    "pytest-cov>=5",
+]
+
+[project.scripts]
+hyprdiscover = "hyprdiscover.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/Zirosaur/HyprDiscover"
+Issues = "https://github.com/Zirosaur/HyprDiscover/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
