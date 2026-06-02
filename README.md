@@ -14,7 +14,7 @@ GNOME Software.
 
 ## Screenshot
 
-![HyprDiscover](assets/main-window.png)
+![HyprDiscover](assets/main-window1.png)
 
 ---
 
