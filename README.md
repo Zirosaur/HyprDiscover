@@ -6,37 +6,9 @@
 
 A modern update manager for Fedora Hyprland.
 
-HyprDiscover provides a lightweight graphical interface for managing system updates on Fedora-based Hyprland systems without requiring KDE Plasma or GNOME Software.
-
-The goal of this project is to deliver a native, simple, and efficient update experience tailored specifically for Hyprland users.
-
----
-
-## Features
-
-### Current Features
-
-* GTK4-based graphical interface
-* PackageKit integration
-* Update detection
-* Update installation
-* Transaction log viewer
-* Scrollable update logs
-* Update status reporting
-* Button state management during updates
-* Reboot button after successful updates
-* About dialog
-* KDE Discover integration
-* Native Waybar integration
-* Waybar JSON output mode (`--waybar`)
-* Single-instance launcher
-* Last checked timestamp
-* Desktop notifications
-* Modular architecture (core/ + ui/)
-* Desktop launcher integration
-* Application menu integration
-* SVG application icon
-* Installation script
+HyprDiscover provides a lightweight graphical interface for managing system
+updates on Fedora-based Hyprland systems without requiring KDE Plasma or
+GNOME Software.
 
 ---
 
@@ -46,23 +18,48 @@ The goal of this project is to deliver a native, simple, and efficient update ex
 
 ---
 
+## Features
+
+- **GTK4 + Libadwaita** graphical interface
+- **Summary card** — total updates, security, bug fixes, enhancements at a glance
+- **Sortable package table** — four-column view (icon, type, package, version)
+- **Category icons** — Nerd Font glyphs for security, bug fix, enhancement, other
+- **PackageKit integration** — update detection and installation
+- **Update log viewer** — expandable transaction details
+- **Progress bar** — pulse animation during updates
+- **Reboot button** — appears after successful updates
+- **About dialog**
+- **KDE Discover launcher** — fallback to Plasma's update tool
+- **Waybar integration** — JSON output mode (`--waybar`) with update count indicator
+- **Single-instance launcher** — shell wrapper with Hyprland focuswindow
+- **Desktop notifications** — via `notify-send`
+- **Configuration file** — TOML at `~/.config/hyprdiscover/config.toml`
+- **Structured logging** — Python stdlib logging to stderr
+- **Desktop entry** — application menu integration
+- **SVG icon** — scalable application icon
+- **CSS stylesheet** — GTK4 CSS provider for theming
+- **Installation script** — quick user-space install to `~/.local/`
+
+---
+
 ## Why HyprDiscover?
 
 Fedora users running Hyprland often rely on:
 
-* Terminal commands
-* KDE Discover
-* GNOME Software
+- Terminal commands
+- KDE Discover
+- GNOME Software
 
-HyprDiscover aims to provide a dedicated update manager designed specifically for Hyprland environments.
+HyprDiscover aims to provide a dedicated update manager designed specifically
+for Hyprland environments.
 
 The project focuses on:
 
-* Simplicity
-* Performance
-* Fedora integration
-* Hyprland integration
-* Security
+- Simplicity
+- Performance
+- Fedora integration
+- Hyprland integration
+- Security
 
 ---
 
@@ -70,51 +67,63 @@ The project focuses on:
 
 ### User Interface
 
-* Python
-* GTK4
-* PyGObject
+- Python 3.12+
+- GTK4
+- Libadwaita
+- PyGObject
 
 ### Package Management
 
-* PackageKit
+- PackageKit (via `pkcon` subprocess; native D-Bus planned for v0.6)
 
 ### System Integration
 
-* systemd
-* Polkit
+- systemd
+- Polkit
+- notify-send
 
 ### Desktop Integration
 
-* Hyprland
-* Waybar
+- Hyprland
+- Waybar
 
 ---
 
 ## Installation
 
-Clone the repository:
+### Quick install (user-space)
 
 ```bash
 git clone https://github.com/Zirosaur/HyprDiscover.git
 cd HyprDiscover
-```
-
-Install launcher:
-
-```bash
 chmod +x install.sh
-```
-
-
-```bash
 ./install.sh
 ```
 
-Launch application:
+Launch:
 
 ```bash
 hyprdiscover
 ```
+
+### Development install (pip)
+
+```bash
+git clone https://github.com/Zirosaur/HyprDiscover.git
+cd HyprDiscover
+pip install -e ".[dev]"
+```
+
+Run:
+
+```bash
+hyprdiscover              # GUI
+hyprdiscover --waybar     # Waybar JSON output
+python -m hyprdiscover    # Alternative entry point
+```
+
+Dependencies: `python3-gobject`, `gtk4`, `libadwaita`, `PackageKit`,
+`libnotify`, `nerd-fonts` (or any font with Nerd Font glyphs for icons).
 
 ---
 
@@ -136,10 +145,11 @@ Add the following module to your Waybar configuration:
 Reload Waybar:
 
 ```bash
-pkill waybar
-waybar &
+pkill waybar && waybar &
 ```
-HyprDiscover provides a native Waybar output mode and does not require external update scripts.
+
+HyprDiscover provides a native Waybar output mode with JSON-formatted
+update counts and does not require external update scripts.
 
 ---
 
@@ -149,16 +159,17 @@ HyprDiscover never runs as root.
 
 Administrative operations are delegated to:
 
-* PackageKit
-* Polkit
-* systemd Offline Updates
+- PackageKit
+- Polkit
+- systemd Offline Updates (planned)
 
-This follows Fedora's recommended update workflow and minimizes privilege escalation risks.
+This follows Fedora's recommended update workflow and minimizes privilege
+escalation risks.
 
 For more information see:
 
-* SECURITY.md
-* ARCHITECTURE.md
+- SECURITY.md
+- ARCHITECTURE.md
 
 ---
 
@@ -166,11 +177,11 @@ For more information see:
 
 Additional documentation is available:
 
-* PRD.md
-* ARCHITECTURE.md
-* SECURITY.md
-* ROADMAP.md
-* CONTRIBUTING.md
+- PRD.md — product requirements
+- ARCHITECTURE.md — architecture overview
+- SECURITY.md — security model
+- ROADMAP.md — planned releases
+- CONTRIBUTING.md — contribution guide
 
 ---
 
@@ -178,78 +189,72 @@ Additional documentation is available:
 
 ### Primary Target
 
-* Fedora Linux
-* Hyprland
+- Fedora Linux
+- Hyprland
 
 ### Future Compatibility
 
-* Sway
-* Niri
-* River
-* Other Wayland compositors
+- Sway
+- Niri
+- River
+- Other Wayland compositors
 
 ---
 
 ## Status
 
-Current development stage:
-
-**v0.2.1**
+Current development stage: **v0.3.0-dev**
 
 Implemented:
 
-* Update detection
-* Update installation
-* Transaction logging
-* PackageKit integration
-* Reboot integration
-* About dialog
-* Last checked status
-* Desktop notifications
-* Native Waybar integration
-* Single-instance launcher
-* Desktop launcher integration
-* Application icon support
-* Installation script
-* Modular architecture
+- GTK4 interface with HeaderBar
+- Summary card with category breakdown
+- Sortable four-column package table
+- PackageKit integration (pkcon backend)
+- Update detection with NEVRA parsing
+- Update installation with progress
+- Transaction log viewer (expandable)
+- Reboot integration with confirmation dialog
+- About dialog, desktop entry, SVG icon
+- Waybar JSON output mode
+- Single-instance launcher
+- Desktop notifications
+- Configuration file (TOML)
+- Structured logging
+- CSS stylesheet for theming
+- Test infrastructure (19 unit tests)
+- CI pipeline (pytest, ruff, mypy)
+- RPM packaging spec
+- Modular architecture (models → backends → services → ui)
 
-Development is active and new features are planned for future releases.
+### Planned Features
 
----
+#### v0.4
 
-## Planned Features
+- Background update checking (systemd timer)
+- Autostart support
+- Configuration GUI panel
+- Error classification
 
-### v0.3
+#### v0.5
 
-* Package list view
-* Update categories
-* Package size information
-* Better package details
+- Flatpak support
+- Multi-backend update merging
 
-### v0.4
+#### v0.6
 
-* Desktop notifications
-* Automatic update checks
-* Background refresh
+- Native PackageKit D-Bus integration
+- Real progress signals
+- Cancellable transactions
 
-### v0.5
+#### v0.7
 
-* Flatpak support
-* Unified update view
+- Offline updates (systemd)
+- Reboot-and-install workflow
 
-### v0.6
+#### v1.0
 
-* Native PackageKit D-Bus integration
-* Removal of pkcon dependency
-
-### v0.7
-
-* Offline updates
-* Reboot-and-install workflow
-
-### v1.0
-
-* Production-ready Fedora Hyprland update manager
+- Production-ready Fedora Hyprland update manager
 
 ---
 
@@ -271,6 +276,8 @@ Please read CONTRIBUTING.md before submitting changes.
 
 ## Acknowledgements
 
-This project is inspired by the simplicity of modern Linux update managers while focusing specifically on the needs of Fedora Hyprland users.
+This project is inspired by the simplicity of modern Linux update managers
+while focusing specifically on the needs of Fedora Hyprland users.
 
-HyprDiscover aims to provide a lightweight, native update experience without requiring a full desktop environment.
+HyprDiscover aims to provide a lightweight, native update experience without
+requiring a full desktop environment.

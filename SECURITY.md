@@ -2,9 +2,9 @@
 
 ## Security Philosophy
 
-HyprDiscover tidak pernah berjalan sebagai root.
+HyprDiscover never runs as root.
 
-Semua operasi administratif dilakukan melalui PackageKit dan Polkit.
+All administrative operations are delegated to PackageKit and Polkit.
 
 ---
 
@@ -12,12 +12,14 @@ Semua operasi administratif dilakukan melalui PackageKit dan Polkit.
 
 ### Authorization Flow
 
+```
 HyprDiscover
-→ PackageKit
-→ Polkit
-→ hyprpolkitagent
-→ User Authentication
-→ Authorization Granted
+  → PackageKit
+    → Polkit
+      → hyprpolkitagent (or other polkit agent)
+        → User Authentication
+          → Authorization Granted
+```
 
 ---
 
@@ -25,55 +27,58 @@ HyprDiscover
 
 ### User Space
 
-HyprDiscover berjalan sebagai user biasa.
+HyprDiscover runs as a regular user process.
 
-Tidak memiliki akses langsung ke:
+It has no direct access to:
 
-* RPM Database
-* System Packages
-* Root Filesystem
+- RPM database
+- System packages
+- Root filesystem
 
 ### Privileged Space
 
-PackageKit daemon berjalan dengan hak akses sistem.
+The PackageKit daemon (`packagekitd`) runs with system privileges.
 
-Hanya daemon yang diperbolehkan melakukan:
+Only the daemon is authorized to:
 
-* Install package
-* Remove package
-* Offline update
+- Install packages
+- Remove packages
+- Prepare offline updates
 
 ---
 
 ## Offline Update Security
 
-HyprDiscover menggunakan mekanisme resmi Fedora:
+HyprDiscover is designed to use Fedora's official offline update mechanism:
 
-* PackageKit Offline Updates
-* system-update.target
-* systemd-system-update-generator
+- PackageKit Offline Updates
+- `system-update.target`
+- `systemd-system-update-generator`
 
-Keuntungan:
+Benefits:
 
-* Menghindari library replacement saat runtime
-* Menghindari compositor crash
-* Mengurangi risiko sistem tidak stabil
+- Avoids in-place library replacement while the system is running
+- Prevents compositor crashes during updates
+- Reduces the risk of system instability
+
+Note: Offline update workflow is planned for v0.7. Currently updates are
+installed online via `pkcon update`.
 
 ---
 
 ## Polkit Requirements
 
-Minimal salah satu agent berikut harus tersedia:
+At least one of the following polkit authentication agents must be available:
 
-* hyprpolkitagent
-* polkit-kde-agent
-* lxqt-policykit
-* mate-polkit
+- hyprpolkitagent
+- polkit-kde-agent
+- lxqt-policykit
+- mate-polkit
 
-Jika tidak ditemukan:
+If no agent is found:
 
-* Warning akan ditampilkan
-* Operasi administratif akan diblokir
+- A warning may be displayed
+- Administrative operations requiring authentication will be blocked
 
 ---
 
@@ -81,24 +86,25 @@ Jika tidak ditemukan:
 
 ### Protected Against
 
-* Accidental privilege escalation
-* Unauthorized package installation
-* Package tampering through UI
+- Accidental privilege escalation
+- Unauthorized package installation
+- Package tampering through the UI
 
-### Not Intended To Protect Against
+### Not Intended to Protect Against
 
-* Root compromise
-* Malicious repositories
-* Supply-chain attacks
+- Root compromise
+- Malicious repositories
+- Supply-chain attacks
 
-Keamanan paket tetap bergantung pada Fedora, RPM, dan GPG signature verification.
+Package security ultimately depends on Fedora's infrastructure, RPM, and
+GPG signature verification.
 
 ---
 
 ## Secure Coding Principles
 
-* No shell injection
-* No root execution
-* D-Bus based communication
-* Asynchronous operations
-* Principle of least privilege
+- No shell injection
+- No root execution
+- PackageKit-mediated system operations (pkcon subprocess; native D-Bus planned)
+- Thread-safe UI updates via `GLib.idle_add()`
+- Principle of least privilege

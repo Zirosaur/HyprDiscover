@@ -68,11 +68,18 @@ install -m644 assets/styles/hyprdiscover.css %{buildroot}%{_datadir}/%{pypi_name
 %{_datadir}/%{pypi_name}/styles/hyprdiscover.css
 
 %changelog
-* Sun Jun 01 2025 HyprDiscover Team <noreply@hyprdiscover.app> - 0.3.0-1
-- Architecture restructure: src/ layout, backend ABC, service layer
-- Added configuration management (TOML)
-- Added structured logging
-- Added test infrastructure
+* Tue Jun 02 2026 HyprDiscover Team - 0.3.0-1
+- Architecture restructure: src/ layout, models/backends/services/ui layers
+- Backend ABC (PackageManagerBackend) with PackageKit implementation
+- Summary card with category breakdown (security, bug fix, enhancement, other)
+- Sortable four-column package table with separate column factories
+- NEVRA-based package name/version parsing
+- TOML configuration management
+- Structured logging (Python stdlib)
+- 19-unit test suite with pytest
+- CI pipeline (GitHub Actions: pytest, ruff, mypy)
+- GTK4 CSS stylesheet for theming
+- Updated installation script
 
-* Sun Jun 01 2025 HyprDiscover Team <noreply@hyprdiscover.app> - 0.2.1-1
+* Sun Jun 01 2026 HyprDiscover Team - 0.2.1-1
 - Initial RPM packaging
