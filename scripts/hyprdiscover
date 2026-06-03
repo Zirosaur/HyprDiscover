@@ -4,7 +4,7 @@
 APP_DIR="${HYPRDISCOVER_DIR:-$HOME/.local/share/hyprdiscover}"
 APP="$APP_DIR/hyprdiscover.py"
 
-if [[ "$*" == *"--waybar"* ]]; then
+if [[ "$*" == *"--waybar"* ]] || [[ "$*" == *"--status"* ]] || [[ "$*" == *"--check"* ]]; then
     python3 "$APP" "$@"
     exit 0
 fi

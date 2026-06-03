@@ -200,6 +200,53 @@ Exit codes:
 
 ---
 
+## Background Update Checking
+
+HyprDiscover can periodically check for updates in the background using
+a systemd user timer. When updates are available, a desktop notification
+is sent.
+
+### Enable the timer
+
+```bash
+# Install the systemd units
+mkdir -p ~/.config/systemd/user/
+cp assets/systemd/hyprdiscover-check.service ~/.config/systemd/user/
+cp assets/systemd/hyprdiscover-check.timer ~/.config/systemd/user/
+systemctl --user daemon-reload
+
+# Enable and start the timer
+systemctl --user enable --now hyprdiscover-check.timer
+```
+
+### Check timer status
+
+```bash
+systemctl --user status hyprdiscover-check.timer
+systemctl --user list-timers
+```
+
+### Configuration
+
+Background checking respects the following settings in
+`~/.config/hyprdiscover/config.toml`:
+
+```toml
+[hyprdiscover]
+auto_refresh = true            # Enable background checks
+refresh_interval_minutes = 60  # Sync with timer OnUnitActiveSec
+show_notifications = true      # Show desktop notifications
+```
+
+The timer runs every 60 minutes by default. To change the interval,
+edit the timer unit:
+
+```bash
+systemctl --user edit hyprdiscover-check.timer
+```
+
+---
+
 ## Security
 
 HyprDiscover never runs as root.
