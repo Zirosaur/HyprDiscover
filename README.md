@@ -119,6 +119,8 @@ Run:
 ```bash
 hyprdiscover              # GUI
 hyprdiscover --waybar     # Waybar JSON output
+hyprdiscover --status     # CLI status summary
+hyprdiscover --status --json  # CLI status (JSON output)
 python -m hyprdiscover    # Alternative entry point
 ```
 
@@ -150,6 +152,51 @@ pkill waybar && waybar &
 
 HyprDiscover provides a native Waybar output mode with JSON-formatted
 update counts and does not require external update scripts.
+
+---
+
+## CLI Status Output
+
+Check for available updates from the command line:
+
+```bash
+hyprdiscover --status
+```
+
+Example output:
+
+```
+Updates available: 12
+
+Security: 2
+Bug Fix: 5
+Enhancement: 3
+Other: 2
+
+Last checked: 2026-06-03 12:45
+```
+
+Up-to-date systems show:
+
+```
+System up to date
+Last checked: 2026-06-03 12:45
+```
+
+For automated scripts and integrations, use JSON output:
+
+```bash
+hyprdiscover --status --json
+```
+
+```json
+{"up_to_date": false, "updates_available": 12, "security": 2, "bugfix": 5, "enhancement": 3, "other": 2, "last_checked": "2026-06-03T12:45:00"}
+```
+
+Exit codes:
+
+- `0` — successful check (updates found or system up to date)
+- `1` — error (unable to check for updates)
 
 ---
 
