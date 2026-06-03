@@ -2,7 +2,7 @@
 
 ## Current Status
 
-**v0.3.0-dev**
+**v0.3.1**
 
 Implemented:
 
@@ -36,13 +36,30 @@ Implemented:
 
 ### Desktop Integration
 - Waybar JSON output mode (`--waybar`)
+- CLI status output (`--status`, `--status --json`)
 - Single-instance launcher with Hyprland window focus
 - Desktop entry and SVG icon
 - Desktop notifications (notify-send)
+- Background update checking via systemd timer (`--check`)
 - Last checked timestamp
 
+### CLI
+- Argparse command routing with `--help` support
+- Waybar JSON mode, status text mode, status JSON mode, background check mode
+
+### Package Management
+- PackageKit integration via `pkcon` subprocess
+- NEVRA-based package name/version/arch parsing
+- PackageKit ID (`name;version;arch;repo`) for multi-arch environments
+- Multi-word category detection ("Bug fix")
+- Status line filtering
+- Per-category update counts
+- Selective package updates with checkbox column
+- Real-time progress reporting via Popen streaming
+- Cancel update operation with proper state handling
+
 ### Testing
-- 19 unit tests covering models, enums, backends, services, Unicode, Waybar
+- 62 unit tests covering models, enums, backends, services, CLI, Unicode, Waybar
 - Test infrastructure with pytest + pytest-cov
 - CI workflow (GitHub Actions)
 

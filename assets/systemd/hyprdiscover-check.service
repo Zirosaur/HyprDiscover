@@ -1,0 +1,9 @@
+[Unit]
+Description=HyprDiscover update check
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=hyprdiscover --check
+StandardOutput=journal
+StandardError=journal

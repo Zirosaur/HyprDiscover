@@ -114,6 +114,11 @@ class UpdateManager:
                 progress_callback=self._on_progress,
             )
 
+            if result.cancelled:
+                self._set_status(UpdateStatus.CANCELLED)
+                log.info("Update was cancelled by user")
+                return result
+
             if result.success:
                 if result.requires_reboot:
                     self._set_status(UpdateStatus.REBOOT_REQUIRED)

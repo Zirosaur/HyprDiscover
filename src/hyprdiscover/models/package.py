@@ -16,6 +16,8 @@ class Package:
     category: UpdateCategory = UpdateCategory.UNKNOWN
     summary: str = ""
     source: str = ""
+    arch: str = ""
+    repo: str = ""
 
     @property
     def display_name(self) -> str:
@@ -40,6 +42,7 @@ class UpdateResult:
     requires_reboot: bool = False
     packages_updated: int = 0
     error_code: Optional[int] = None
+    cancelled: bool = False
 
 
 @dataclass

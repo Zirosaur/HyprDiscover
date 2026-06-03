@@ -2,7 +2,7 @@
 %global app_id com.hyprdiscover.app
 
 Name:           %{pypi_name}
-Version:        0.3.0
+Version:        0.3.1
 Release:        1%{?dist}
 Summary:        Modern update manager for Fedora Hyprland
 
@@ -68,6 +68,15 @@ install -m644 assets/styles/hyprdiscover.css %{buildroot}%{_datadir}/%{pypi_name
 %{_datadir}/%{pypi_name}/styles/hyprdiscover.css
 
 %changelog
+* Wed Jun 03 2026 HyprDiscover Team - 0.3.1-1
+- CLI status output (--status / --status --json)
+- Argparse command routing with --help support
+- Background update checking via systemd timer (--check)
+- Selective package updates with checkbox column
+- Real-time progress reporting via Popen streaming
+- Cancel update operation with proper state handling
+- 62-unit test suite (up from 19 in v0.3.0)
+
 * Tue Jun 02 2026 HyprDiscover Team - 0.3.0-1
 - Architecture restructure: src/ layout, models/backends/services/ui layers
 - Backend ABC (PackageManagerBackend) with PackageKit implementation

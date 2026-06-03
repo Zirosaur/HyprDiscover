@@ -3,11 +3,9 @@ from __future__ import annotations
 import logging
 
 import gi
+
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gio
-from gi.repository import GObject
-from gi.repository import Gtk
-from gi.repository import Pango
+from gi.repository import Gio, GObject, Gtk, Pango
 
 from hyprdiscover.models.package import Package
 
@@ -43,6 +41,7 @@ class PackageRow(GObject.Object):
     """GObject adapter for Gio.ListStore / Gtk.ColumnView.
 
     Properties are exposed for Gtk.PropertyExpression-based sorters.
+    Stores a reference to the original Package for selection mapping.
     """
 
     icon = GObject.Property(type=str, default=_DEFAULT_ICON)
@@ -51,9 +50,11 @@ class PackageRow(GObject.Object):
     name = GObject.Property(type=str, default="")
     version = GObject.Property(type=str, default="")
     package_id = GObject.Property(type=str, default="")
+    selected = GObject.Property(type=bool, default=False)
 
     def __init__(self, package: Package) -> None:
         super().__init__()
+        self.package = package
         cat_val = package.category.value
         self.icon = _ICONS.get(cat_val, _DEFAULT_ICON)
         self.category = _LABELS.get(cat_val, _DEFAULT_LABEL)
@@ -119,6 +120,7 @@ class PackageListView(Gtk.Box):
     """Scrollable, sortable ColumnView of packages.
 
     Columns (left to right):
+      Select (checkbox)
       Icon (Nerd Font glyph per category)
       Type (Security / Bug Fix / Enhancement / Other — sortable)
       Package (name, sortable A-Z)
@@ -130,11 +132,22 @@ class PackageListView(Gtk.Box):
 
         self._store = Gio.ListStore.new(PackageRow)
         self._selection = Gtk.SingleSelection(model=self._store)
+        self._on_selection_changed_cb: callable | None = None
 
         self._column_view = Gtk.ColumnView(model=self._selection)
         self._column_view.set_hexpand(True)
         self._column_view.set_vexpand(True)
         self._column_view.add_css_class("rich-list")
+
+        # ── Checkbox column ────────────────────────────────
+        check_factory = Gtk.SignalListItemFactory()
+        check_factory.connect("setup", self._on_check_setup)
+        check_factory.connect("bind", self._on_check_bind)
+        check_factory.connect("teardown", self._on_check_teardown)
+        col_check = Gtk.ColumnViewColumn.new("", check_factory)
+        col_check.set_fixed_width(40)
+        col_check.set_resizable(False)
+        self._column_view.append_column(col_check)
 
         # ── Icon column (unsorted) ──────────────────────────
         icon_factory = _make_factory(_on_label_setup, _bind_icon)
@@ -178,9 +191,61 @@ class PackageListView(Gtk.Box):
         scroll.set_child(self._column_view)
         self.append(scroll)
 
+    # ── Public API ──────────────────────────────────────────
+
     def set_packages(self, packages: list[Package]) -> None:
         new_store = Gio.ListStore.new(PackageRow)
         for pkg in packages:
             new_store.append(PackageRow(pkg))
         self._store = new_store
         self._selection.set_model(self._store)
+        if self._on_selection_changed_cb:
+            self._on_selection_changed_cb(0)
+
+    def set_selection_callback(self, cb: callable) -> None:
+        self._on_selection_changed_cb = cb
+
+    def get_checked_packages(self) -> list[Package]:
+        packages: list[Package] = []
+        for i in range(self._store.get_n_items()):
+            row: PackageRow = self._store.get_item(i)
+            if row.selected:
+                packages.append(row.package)
+        return packages
+
+    def get_checked_count(self) -> int:
+        return sum(
+            1 for i in range(self._store.get_n_items())
+            if self._store.get_item(i).selected
+        )
+
+    # ── Checkbox column factories ───────────────────────────
+
+    def _on_check_setup(self, factory: Gtk.ListItemFactory, item: Gtk.ListItem) -> None:
+        cb = Gtk.CheckButton()
+        item.set_child(cb)
+
+    def _on_check_bind(self, factory: Gtk.ListItemFactory, item: Gtk.ListItem) -> None:
+        row: PackageRow = item.get_item()
+        if row is None:
+            return
+        cb: Gtk.CheckButton = item.get_child()
+        handler_id = cb.connect("toggled", self._on_check_toggled, row)
+        item.check_handler_id = handler_id
+        cb.handler_block(handler_id)
+        cb.set_active(row.selected)
+        cb.handler_unblock(handler_id)
+
+    def _on_check_teardown(self, factory: Gtk.ListItemFactory, item: Gtk.ListItem) -> None:
+        cb = item.get_child()
+        if cb is None:
+            return
+        handler_id = getattr(item, "check_handler_id", None)
+        if handler_id and cb.handler_is_connected(handler_id):
+            cb.disconnect(handler_id)
+        cb.set_active(False)
+
+    def _on_check_toggled(self, button: Gtk.CheckButton, row: PackageRow) -> None:
+        row.selected = button.get_active()
+        if self._on_selection_changed_cb:
+            self._on_selection_changed_cb(self.get_checked_count())

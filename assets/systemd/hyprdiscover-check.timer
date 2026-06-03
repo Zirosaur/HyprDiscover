@@ -1,0 +1,10 @@
+[Unit]
+Description=HyprDiscover periodic update check
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=60min
+Persistent=true
+
+[Install]
+WantedBy=default.target
