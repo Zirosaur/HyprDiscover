@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import re
 import subprocess
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from hyprdiscover.backends.base import PackageManagerBackend
 from hyprdiscover.models.enums import UpdateCategory
@@ -91,13 +91,18 @@ class PackageKitBackend(PackageManagerBackend):
 
     def install_updates(
         self,
-        packages: Optional[list[Package]] = None,
-        progress_callback: Optional[Callable[[UpdateProgress], None]] = None,
+        packages: list[Package] | None = None,
+        progress_callback: Callable[[UpdateProgress], None] | None = None,
     ) -> UpdateResult:
         self._cancelled = False
 
+        if packages:
+            cmd = ["pkcon", "update"] + [p.name for p in packages] + ["-y"]
+        else:
+            cmd = ["pkcon", "update", "-y"]
+
         result = subprocess.run(
-            ["pkcon", "update", "-y"],
+            cmd,
             capture_output=True,
             text=True,
             check=False,
@@ -138,7 +143,7 @@ class PackageKitBackend(PackageManagerBackend):
     def search_packages(self, query: str) -> list[PackageDetail]:
         return []
 
-    def get_package_details(self, package_id: str) -> Optional[PackageDetail]:
+    def get_package_details(self, package_id: str) -> PackageDetail | None:
         return None
 
     def cancel(self) -> None:

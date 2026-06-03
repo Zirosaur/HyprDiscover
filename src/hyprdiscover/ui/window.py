@@ -6,9 +6,9 @@ import threading
 from datetime import datetime
 
 import gi
+
 gi.require_version("Gtk", "4.0")
-from gi.repository import GLib
-from gi.repository import Gtk
+from gi.repository import GLib, Gtk
 
 from hyprdiscover.backends.packagekit import PackageKitBackend
 from hyprdiscover.config import AppConfig
@@ -98,11 +98,17 @@ class MainWindow(Gtk.ApplicationWindow):
         )
         self._refresh_btn.connect("clicked", lambda b: self._async_refresh())
 
+        self._update_selected_btn = Gtk.Button(
+            label=f"  {self._UPDATE_ICON}  Update Selected  "
+        )
+        self._update_selected_btn.connect("clicked", lambda b: self._async_install_selected())
+        self._update_selected_btn.add_css_class("suggested-action")
+        self._update_selected_btn.set_sensitive(False)
+
         self._update_btn = Gtk.Button(
             label=f"  {self._UPDATE_ICON}  Update All  "
         )
-        self._update_btn.connect("clicked", lambda b: self._async_install())
-        self._update_btn.add_css_class("suggested-action")
+        self._update_btn.connect("clicked", lambda b: self._async_install_all())
 
         self._reboot_btn = Gtk.Button(
             label=f"  {self._REBOOT_ICON}  Reboot  "
@@ -116,6 +122,7 @@ class MainWindow(Gtk.ApplicationWindow):
         action_bar.set_margin_top(8)
         action_bar.set_margin_bottom(4)
         action_bar.append(self._refresh_btn)
+        action_bar.append(self._update_selected_btn)
         action_bar.append(self._update_btn)
         action_bar.append(self._reboot_btn)
 
@@ -155,6 +162,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def _wire_signals(self) -> None:
         self._updater.set_status_callback(self._on_status_changed)
+        self._package_list.set_selection_callback(self._on_selection_changed)
 
     # ── Public API ──────────────────────────────────────────────
 
@@ -198,7 +206,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
     # ── Async Install ───────────────────────────────────────────
 
-    def _async_install(self) -> None:
+    def _async_install_all(self) -> None:
         count = self._updater.update_count
         if count == 0:
             return
@@ -215,6 +223,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self._summary.show_updating()
         self._refresh_btn.set_sensitive(False)
         self._update_btn.set_sensitive(False)
+        self._update_selected_btn.set_sensitive(False)
         self._reboot_btn.set_visible(False)
         self._expander.set_expanded(True)
         self._running = True
@@ -225,12 +234,47 @@ class MainWindow(Gtk.ApplicationWindow):
         thread = threading.Thread(target=self._install_in_thread, daemon=True)
         thread.start()
 
-    def _install_in_thread(self) -> None:
-        result = self._updater.install_updates()
+    def _async_install_selected(self) -> None:
+        packages = self._package_list.get_checked_packages()
+        if not packages:
+            return
+        count = len(packages)
+
+        if self._config.confirm_update:
+            confirmed = show_confirm(
+                self, "Install Selected Updates",
+                f"{count} package{'s' if count != 1 else ''} will be updated.",
+                primary_label="Install",
+            )
+            if not confirmed:
+                return
+
+        self._summary.show_updating()
+        self._refresh_btn.set_sensitive(False)
+        self._update_btn.set_sensitive(False)
+        self._update_selected_btn.set_sensitive(False)
+        self._reboot_btn.set_visible(False)
+        self._expander.set_expanded(True)
+        self._running = True
+
+        self._progress.show("Preparing update\u2026")
+        self._pulse_source = GLib.timeout_add(100, self._pulse_tick)
+
+        thread = threading.Thread(
+            target=self._install_in_thread,
+            kwargs={"packages": packages},
+            daemon=True,
+        )
+        thread.start()
+
+    def _install_in_thread(self, packages: object = None) -> None:
+        result = self._updater.install_updates(packages=packages)
 
         GLib.idle_add(self._running_stop)
         GLib.idle_add(self._refresh_btn.set_sensitive, True)
         GLib.idle_add(self._update_btn.set_sensitive, True)
+        GLib.idle_add(self._update_selected_btn.set_sensitive,
+                      self._package_list.get_checked_count() > 0)
         GLib.idle_add(self._progress.hide)
 
         if result.success:
@@ -262,6 +306,20 @@ class MainWindow(Gtk.ApplicationWindow):
         if self._pulse_source is not None:
             GLib.source_remove(self._pulse_source)
             self._pulse_source = None
+
+    # ── Selection Callbacks ────────────────────────────────────
+
+    def _on_selection_changed(self, count: int) -> None:
+        if count == 0:
+            self._update_selected_btn.set_sensitive(False)
+            self._update_selected_btn.set_label(
+                f"  {self._UPDATE_ICON}  Update Selected  "
+            )
+        else:
+            self._update_selected_btn.set_sensitive(True)
+            self._update_selected_btn.set_label(
+                f"  {self._UPDATE_ICON}  Update Selected ({count})  "
+            )
 
     # ── Status Callbacks ────────────────────────────────────────
 
