@@ -102,7 +102,7 @@ The core focus is system updates.
 
 ---
 
-## Current Features (v0.3.0-dev)
+## Current Features (v0.3.1)
 
 Beyond the MVP, the following features have been implemented:
 

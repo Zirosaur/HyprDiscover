@@ -297,7 +297,7 @@ Additional documentation is available:
 
 ## Status
 
-Current development stage: **v0.3.0-dev**
+Current development stage: **v0.3.1**
 
 Implemented:
 

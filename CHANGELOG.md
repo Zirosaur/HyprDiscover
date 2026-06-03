@@ -5,7 +5,49 @@ All notable changes to HyprDiscover are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.0-dev] — Unreleased
+## [0.3.1] — 2026-06-03
+
+### Added
+
+- **CLI status output** — `hyprdiscover --status` prints human-readable
+  update summary; `--status --json` outputs machine-readable JSON with
+  ISO-8601 timestamps.
+- **Argparse command routing** — `hyprdiscover --help` shows all
+  available options with descriptions.
+- **Background update checking** — `hyprdiscover --check` mode for
+  headless update checks via systemd user timer. Sends desktop
+  notifications when updates are available.
+- **Systemd timer** — `hyprdiscover-check.timer` and
+  `hyprdiscover-check.service` units for periodic background checks.
+- **Selective package updates** — checkbox column in the package list
+  enables installing only selected packages. `Update Selected (N)` button
+  shows count and installs the checked subset.
+- **Real-time progress reporting** — `subprocess.Popen()` with line
+  streaming replaces blocking `subprocess.run()`. Progress bar fraction,
+  status label, and transaction log update in real time during updates.
+- **Cancel update operation** — Cancel button stops an in-progress
+  update via `process.terminate()`. Preserves `CANCELLED` status without
+  showing failure notifications.
+- **Package architecture tracking** — `arch` and `repo` fields added to
+  `Package` model. PackageKit IDs (`name;version;arch;repo`) used for
+  unambiguous package identification in multi-arch environments.
+
+### Changed
+
+- **Shell wrapper** — `scripts/hyprdiscover` now bypasses single-instance
+  enforcement for `--check` and `--status` CLI modes.
+- **Backend install_updates** — uses `os.environ.copy()` for `LANG=C`
+  instead of hardcoded `env` dict.
+
+### Testing
+
+- **62 unit tests** (up from 19) covering CLI status, argparse routing,
+  background checking, package list selection, real-time progress
+  streaming, cancel termination, and CANCELLED status preservation.
+
+---
+
+## [0.3.0] — 2026-06-02
 
 ### Architecture
 
