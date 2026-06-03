@@ -3,7 +3,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 from hyprdiscover.models.enums import UpdateStatus
-from hyprdiscover.models.package import Package, UpdateResult
+from hyprdiscover.models.package import Package, UpdateProgress, UpdateResult
 from hyprdiscover.services.update_manager import UpdateManager
 
 
@@ -73,3 +73,42 @@ class TestUpdateManager:
         mgr.refresh()
         assert UpdateStatus.CHECKING in statuses
         assert UpdateStatus.UP_TO_DATE in statuses
+
+    def test_progress_callback_forwards_from_backend(self) -> None:
+        backend = MagicMock()
+        mgr = UpdateManager(backend)
+
+        captured: list[UpdateProgress] = []
+        mgr.set_progress_callback(captured.append)
+
+        pkg = MagicMock(spec=Package)
+
+        def fake_install(packages=None, progress_callback=None):
+            progress_callback(UpdateProgress(status="Downloading", message=""))
+            progress_callback(UpdateProgress(percentage=42))
+            progress_callback(UpdateProgress(message="firefox-131.0.x86_64"))
+            return UpdateResult(success=True, message="ok")
+
+        backend.install_updates.side_effect = fake_install
+        backend.get_updates.return_value = []
+        mgr.install_updates(packages=[pkg])
+
+        assert len(captured) == 3
+        assert captured[0].status == "Downloading"
+        assert captured[1].percentage == 42
+        assert captured[2].message == "firefox-131.0.x86_64"
+
+    def test_cancelled_preserves_cancelled_status(self) -> None:
+        backend = MagicMock()
+        backend.install_updates.return_value = UpdateResult(
+            success=False, message="terminated", cancelled=True,
+        )
+        backend.get_updates.return_value = []
+        mgr = UpdateManager(backend)
+
+        mgr.cancel()
+        assert mgr.status == UpdateStatus.CANCELLED
+
+        result = mgr.install_updates()
+        assert result.cancelled is True
+        assert mgr.status == UpdateStatus.CANCELLED

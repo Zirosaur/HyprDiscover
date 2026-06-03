@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import re
 import subprocess
 from collections.abc import Callable
@@ -25,6 +26,8 @@ _NEVRA_RE = re.compile(
     r"^(.+)-((\d+:)?\d[\w.+]*?-[\w.+~]+)\.(\w+)$"
 )
 
+_REPO_RE = re.compile(r"\s*\(([^)]+)\)\s*$")
+
 _CATEGORY_NAMES: dict[str, UpdateCategory] = {
     "Security": UpdateCategory.SECURITY,
     "Bug fix": UpdateCategory.BUGFIX,
@@ -37,21 +40,55 @@ _CATEGORY_NAMES: dict[str, UpdateCategory] = {
 }
 
 
-def _parse_nevra(nevra: str) -> tuple[str, str]:
-    """Parse RPM NEVRA string into (name, version).
+def _parse_nevra(nevra: str) -> tuple[str, str, str]:
+    """Parse RPM NEVRA string into (name, version, arch).
 
     Handles both NEVRA format (name-ver-rel.arch) and PackageKit
     ID format (name;ver;arch;repo).
     """
     if ";" in nevra:
         parts = nevra.split(";")
-        return parts[0], parts[1] if len(parts) > 1 else ""
+        name = parts[0]
+        version = parts[1] if len(parts) > 1 else ""
+        arch = parts[2] if len(parts) > 2 else ""
+        return name, version, arch
 
     m = _NEVRA_RE.match(nevra)
     if m:
-        return m.group(1), m.group(2)
+        return m.group(1), m.group(2), m.group(4)
 
-    return nevra, ""
+    return nevra, "", ""
+
+
+def _parse_progress_line(line: str) -> UpdateProgress | None:
+    """Parse a single pkcon output line into an UpdateProgress event.
+
+    Recognised prefixes (LANG=C):
+
+        Status:      → update_progress.status
+        Package:     → update_progress.message (NEVRA)
+        Percentage:  → update_progress.percentage (0-100)
+
+    Returns None when the line does not carry progress information.
+    """
+    if not line or ":" not in line:
+        return None
+
+    key, _, value = line.partition("\t")
+    key = key.strip().rstrip(":")
+    value = value.strip()
+
+    if key == "Status":
+        return UpdateProgress(status=value)
+    if key == "Package":
+        return UpdateProgress(message=value)
+    if key == "Percentage":
+        try:
+            return UpdateProgress(percentage=int(value))
+        except ValueError:
+            return None
+
+    return None
 
 
 class PackageKitBackend(PackageManagerBackend):
@@ -97,24 +134,41 @@ class PackageKitBackend(PackageManagerBackend):
         self._cancelled = False
 
         if packages:
-            cmd = ["pkcon", "update"] + [p.name for p in packages] + ["-y"]
+            pkg_ids = [f"{p.name};{p.version_available};{p.arch};{p.repo}" for p in packages]
+            cmd = ["pkcon", "update"] + pkg_ids + ["-y"]
         else:
             cmd = ["pkcon", "update", "-y"]
 
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        output = result.stdout + result.stderr
+        env = os.environ.copy()
+        env["LANG"] = "C"
 
-        if progress_callback:
-            progress_callback(UpdateProgress(
-                status="finished",
-                percentage=100,
-                message="Update transaction complete",
-            ))
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            env=env,
+        )
+
+        output_lines: list[str] = []
+        for line in process.stdout:
+            line = line.rstrip("\n")
+            output_lines.append(line)
+
+            if self._cancelled:
+                process.terminate()
+                break
+
+            if progress_callback:
+                ev = _parse_progress_line(line)
+                if ev is not None:
+                    progress_callback(ev)
+
+        process.wait(timeout=30)
+        output = "\n".join(output_lines)
+
+        if self._cancelled:
+            return UpdateResult(success=False, message=output, cancelled=True)
 
         no_updates_markers = (
             "No packages",
@@ -127,7 +181,7 @@ class PackageKitBackend(PackageManagerBackend):
         if any(m in output for m in no_updates_markers):
             return UpdateResult(success=True, message=output, packages_updated=0)
 
-        if result.returncode == 0:
+        if process.returncode == 0:
             return UpdateResult(
                 success=True,
                 message=output,
@@ -137,7 +191,7 @@ class PackageKitBackend(PackageManagerBackend):
         return UpdateResult(
             success=False,
             message=output,
-            error_code=result.returncode,
+            error_code=process.returncode,
         )
 
     def search_packages(self, query: str) -> list[PackageDetail]:
@@ -223,15 +277,20 @@ class PackageKitBackend(PackageManagerBackend):
             if not nevra or not any(c.isdigit() for c in nevra):
                 continue
 
-            pkg_name, version = _parse_nevra(nevra)
+            pkg_name, version, arch = _parse_nevra(nevra)
             if not pkg_name:
                 continue
+
+            repo_match = _REPO_RE.search(rest)
+            repo = repo_match.group(1) if repo_match else ""
 
             pkg = Package(
                 name=pkg_name,
                 package_id=nevra,
                 version_available=version,
                 category=category,
+                arch=arch,
+                repo=repo,
             )
             packages.append(pkg)
 

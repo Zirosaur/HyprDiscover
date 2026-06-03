@@ -13,6 +13,7 @@ from gi.repository import GLib, Gtk
 from hyprdiscover.backends.packagekit import PackageKitBackend
 from hyprdiscover.config import AppConfig
 from hyprdiscover.models.enums import UpdateStatus
+from hyprdiscover.models.package import UpdateProgress
 from hyprdiscover.services.notifications import NotificationService
 from hyprdiscover.services.reboot import reboot_system
 from hyprdiscover.services.update_manager import UpdateManager
@@ -110,6 +111,12 @@ class MainWindow(Gtk.ApplicationWindow):
         )
         self._update_btn.connect("clicked", lambda b: self._async_install_all())
 
+        self._cancel_btn = Gtk.Button(
+            label="  \U000F0156  Cancel  "
+        )
+        self._cancel_btn.connect("clicked", lambda b: self._cancel_operation())
+        self._cancel_btn.set_sensitive(False)
+
         self._reboot_btn = Gtk.Button(
             label=f"  {self._REBOOT_ICON}  Reboot  "
         )
@@ -124,6 +131,7 @@ class MainWindow(Gtk.ApplicationWindow):
         action_bar.append(self._refresh_btn)
         action_bar.append(self._update_selected_btn)
         action_bar.append(self._update_btn)
+        action_bar.append(self._cancel_btn)
         action_bar.append(self._reboot_btn)
 
         self._expander = Gtk.Expander(label="Package Details")
@@ -162,6 +170,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def _wire_signals(self) -> None:
         self._updater.set_status_callback(self._on_status_changed)
+        self._updater.set_progress_callback(self._on_progress)
         self._package_list.set_selection_callback(self._on_selection_changed)
 
     # ── Public API ──────────────────────────────────────────────
@@ -224,10 +233,12 @@ class MainWindow(Gtk.ApplicationWindow):
         self._refresh_btn.set_sensitive(False)
         self._update_btn.set_sensitive(False)
         self._update_selected_btn.set_sensitive(False)
+        self._cancel_btn.set_sensitive(True)
         self._reboot_btn.set_visible(False)
         self._expander.set_expanded(True)
         self._running = True
 
+        self._log_view.clear()
         self._progress.show("Preparing update\u2026")
         self._pulse_source = GLib.timeout_add(100, self._pulse_tick)
 
@@ -253,10 +264,12 @@ class MainWindow(Gtk.ApplicationWindow):
         self._refresh_btn.set_sensitive(False)
         self._update_btn.set_sensitive(False)
         self._update_selected_btn.set_sensitive(False)
+        self._cancel_btn.set_sensitive(True)
         self._reboot_btn.set_visible(False)
         self._expander.set_expanded(True)
         self._running = True
 
+        self._log_view.clear()
         self._progress.show("Preparing update\u2026")
         self._pulse_source = GLib.timeout_add(100, self._pulse_tick)
 
@@ -275,7 +288,13 @@ class MainWindow(Gtk.ApplicationWindow):
         GLib.idle_add(self._update_btn.set_sensitive, True)
         GLib.idle_add(self._update_selected_btn.set_sensitive,
                       self._package_list.get_checked_count() > 0)
+        GLib.idle_add(self._cancel_btn.set_sensitive, False)
         GLib.idle_add(self._progress.hide)
+
+        if result.cancelled:
+            self._updater.refresh()
+            GLib.idle_add(self._package_list.set_packages, self._updater.packages)
+            return
 
         if result.success:
             self._notifier.update_success()
@@ -283,14 +302,10 @@ class MainWindow(Gtk.ApplicationWindow):
             GLib.idle_add(self._summary.show_success, reboot)
             if reboot:
                 GLib.idle_add(self._reboot_btn.set_visible, True)
-            GLib.idle_add(self._log_view.set_text, result.message)
-            GLib.idle_add(self._log_view.set_visible, True)
             self._updater.refresh()
             GLib.idle_add(self._package_list.set_packages, self._updater.packages)
         else:
             self._notifier.update_failed()
-            GLib.idle_add(self._log_view.set_text, result.message)
-            GLib.idle_add(self._log_view.set_visible, True)
             GLib.idle_add(self._expander.set_expanded, True)
 
     # ── Progress ────────────────────────────────────────────────
@@ -321,6 +336,21 @@ class MainWindow(Gtk.ApplicationWindow):
                 f"  {self._UPDATE_ICON}  Update Selected ({count})  "
             )
 
+    # ── Progress Callbacks ─────────────────────────────────────
+
+    def _on_progress(self, progress: UpdateProgress) -> None:
+        if progress.percentage > 0 and self._pulse_source is not None:
+            GLib.idle_add(self._running_stop)
+
+        if progress.percentage >= 0:
+            GLib.idle_add(self._progress.set_fraction, progress.percentage / 100.0)
+
+        msg = progress.message or progress.status or ""
+        if msg:
+            GLib.idle_add(self._progress.set_label, msg)
+            GLib.idle_add(self._log_view.append_text, msg + "\n")
+            GLib.idle_add(self._log_view.set_visible, True)
+
     # ── Status Callbacks ────────────────────────────────────────
 
     def _on_status_changed(self, status: UpdateStatus) -> None:
@@ -350,7 +380,13 @@ class MainWindow(Gtk.ApplicationWindow):
             GLib.idle_add(self._summary.show_error)
             GLib.idle_add(self._expander.set_expanded, True)
 
+        elif status == UpdateStatus.CANCELLED:
+            pass
+
     # ── Button Actions ──────────────────────────────────────────
+
+    def _cancel_operation(self) -> None:
+        self._updater.cancel()
 
     def _open_discover(self) -> None:
         subprocess.Popen(["plasma-discover"])
