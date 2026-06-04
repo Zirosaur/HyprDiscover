@@ -24,6 +24,7 @@ class AppConfig:
     enable_flatpak: bool = False
     confirm_reboot: bool = True
     confirm_update: bool = False
+    auto_start: bool = False
     window_width: int = 700
     window_height: int = 500
     dark_mode: bool | None = None  # None = follow system

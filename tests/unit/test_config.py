@@ -45,3 +45,7 @@ class TestAppConfig:
             path.write_text("this is not valid toml {{{")
             loaded = load_config(path)
             assert loaded.auto_refresh is True
+
+    def test_auto_start_defaults_to_false(self) -> None:
+        c = AppConfig()
+        assert c.auto_start is False

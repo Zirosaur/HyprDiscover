@@ -8,6 +8,7 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
 from hyprdiscover.config import AppConfig
+from hyprdiscover.services import autostart
 
 log = logging.getLogger(__name__)
 
@@ -155,6 +156,18 @@ class PreferencesWindow(Gtk.Window):
         self._check_on_startup_switch = row.get_child().get_last_child()
         list_box.append(row)
 
+        # Startup section
+        list_box.append(_make_section_header("Startup"))
+
+        self._auto_start_switch: Gtk.Switch
+        row = _make_switch_row(
+            "Start automatically on login",
+            autostart.is_autostart_enabled(),
+            self._on_auto_start_toggled,
+        )
+        self._auto_start_switch = row.get_child().get_last_child()
+        list_box.append(row)
+
         # Advanced section
         list_box.append(_make_section_header("Advanced"))
 
@@ -207,6 +220,14 @@ class PreferencesWindow(Gtk.Window):
         self._config.log_level = _LOG_LEVELS[idx]
         self._save()
 
+    def _on_auto_start_toggled(self, active: bool) -> None:
+        self._config.auto_start = active
+        self._save()
+        if active:
+            autostart.enable_autostart()
+        else:
+            autostart.disable_autostart()
+
     def _on_reset(self, _button: Gtk.Button) -> None:
         defaults = AppConfig()
         self._config.auto_refresh = defaults.auto_refresh
@@ -215,7 +236,13 @@ class PreferencesWindow(Gtk.Window):
         self._config.confirm_update = defaults.confirm_update
         self._config.confirm_reboot = defaults.confirm_reboot
         self._config.log_level = defaults.log_level
+        self._config.auto_start = defaults.auto_start
         self._save()
+
+        if defaults.auto_start:
+            autostart.enable_autostart()
+        else:
+            autostart.disable_autostart()
 
         # Update widget states
         self._auto_refresh_switch.set_active(defaults.auto_refresh)
@@ -223,6 +250,7 @@ class PreferencesWindow(Gtk.Window):
         self._confirm_reboot_switch.set_active(defaults.confirm_reboot)
         self._show_notifications_switch.set_active(defaults.show_notifications)
         self._check_on_startup_switch.set_active(defaults.check_on_startup)
+        self._auto_start_switch.set_active(defaults.auto_start)
         try:
             self._log_level_dropdown.set_selected(
                 _LOG_LEVELS.index(defaults.log_level)
