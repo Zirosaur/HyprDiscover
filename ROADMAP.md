@@ -2,7 +2,7 @@
 
 ## Current Status
 
-**v0.3.1**
+**v0.4.0**
 
 Implemented:
 
@@ -41,11 +41,8 @@ Implemented:
 - Desktop entry and SVG icon
 - Desktop notifications (notify-send)
 - Background update checking via systemd timer (`--check`)
+- Autostart integration via Preferences
 - Last checked timestamp
-
-### CLI
-- Argparse command routing with `--help` support
-- Waybar JSON mode, status text mode, status JSON mode, background check mode
 
 ### Package Management
 - PackageKit integration via `pkcon` subprocess
@@ -57,24 +54,36 @@ Implemented:
 - Selective package updates with checkbox column
 - Real-time progress reporting via Popen streaming
 - Cancel update operation with proper state handling
+- Typed error classification (NETWORK, AUTH, LOCK, CONFLICT, INTERNAL)
 
-### Testing
-- 62 unit tests covering models, enums, backends, services, CLI, Unicode, Waybar
+### Preferences & Configuration
+- TOML configuration file
+- Configuration GUI with instant-save (6 settings + Reset to Defaults)
+- Accessibility labels on all interactive controls
+- Tooltips on action buttons
+
+### CLI
+- Argparse command routing with `--help` support
+- Waybar JSON mode, status text mode, status JSON mode, background check mode
+
+### Testing & CI
+- 86 unit tests covering models, enums, backends, services, CLI, UI, Unicode
 - Test infrastructure with pytest + pytest-cov
-- CI workflow (GitHub Actions)
+- GitHub Actions: Ubuntu (3.12 + 3.13, ruff, mypy) + Fedora GTK container
+- RPM packaging spec (COPR-ready)
 
 ---
 
-## v0.4 — Desktop Integration
+## v0.4 — Desktop Integration ✅
 
-Planned:
+Completed (2026-06-04):
 
 - Background update checking via systemd timer
 - Autostart `.desktop` file for session login
 - Configuration GUI (preferences panel)
-- Error classification (NetworkError, AuthError, etc.)
-- Accessibility pass (ATK roles, labels)
-- Increased test coverage
+- Error classification (NetworkError, AuthError, LOCK, CONFLICT, INTERNAL)
+- Accessibility pass (ATK labels, tooltips)
+- Increased test coverage (19 → 86)
 
 ---
 

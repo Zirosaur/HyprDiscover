@@ -102,36 +102,38 @@ The core focus is system updates.
 
 ---
 
-## Current Features (v0.3.1)
+## Current Features (v0.4.0)
 
-Beyond the MVP, the following features have been implemented:
-
+- GTK4 + Libadwaita graphical interface
 - Summary card with category breakdown (security, bug fix, enhancement, other)
-- Sortable four-column package table (icon, type, package, version)
-- NEVRA-based package name/version parsing
-- Configuration management (TOML)
+- Sortable package table with checkboxes for selective updates
+- Real-time progress streaming during updates
+- Cancel update operation
+- Configuration GUI (Preferences window with instant-save)
+- XDG autostart integration (opt-in)
+- Typed error classification (Network, Auth, Lock, Conflict, Internal)
+- Accessibility labels on all interactive controls
+- Tooltips on action buttons
+- NEVRA-based package name/version/arch parsing
+- Background update checking via systemd timer
+- CLI status output (--status, --status --json)
 - Waybar JSON output mode
 - Desktop notifications
 - Single-instance launcher with Hyprland window focus
-- Test infrastructure (19 unit tests)
-- CI pipeline (pytest, ruff, mypy)
-- RPM packaging spec
+- Configuration management (TOML)
+- Test infrastructure (86 unit tests, 44% coverage)
+- CI pipeline: Ubuntu (pytest, ruff, mypy) + Fedora GTK container
+- RPM packaging spec (COPR-ready)
 
 ---
 
 ## Future Features
 
-### v0.4
-
-- Background update checking (systemd timer)
-- Autostart support
-- Configuration GUI
-- Error classification
-
 ### v0.5
 
 - Flatpak support
 - Unified RPM + Flatpak update view
+- Multi-backend merge
 
 ### v0.6
 

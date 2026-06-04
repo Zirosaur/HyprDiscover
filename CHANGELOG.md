@@ -5,6 +5,47 @@ All notable changes to HyprDiscover are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] — 2026-06-04
+
+### Added
+
+- **Configuration GUI** — Preferences window with 6 configurable settings
+  and Reset to Defaults action. Launched from the HeaderBar menu.
+- **Typed error classification** — `ErrorType` enum and `UpdateError`
+  dataclass. pkcon failures are classified as NETWORK, AUTH, LOCK,
+  CONFLICT, or INTERNAL. Typed error summaries are shown in the UI.
+- **XDG autostart integration** — `~/.config/autostart/hyprdiscover.desktop`
+  created via a "Start automatically on login" toggle in Preferences.
+  Opt-in only; disabled by default.
+- **Accessibility improvements** — `AccessibleProperty.LABEL` set on
+  Switches, DropDowns, CheckButtons, the MenuButton, and ProgressBar.
+  Tooltips added to all action buttons (Refresh, Update Selected,
+  Update All, Cancel, Reboot, Open Discover).
+- **Fedora GTK CI** — a `fedora:41` container job runs UI tests with
+  `xvfb-run`. Ubuntu backend job tests both Python 3.12 and 3.13.
+
+### Changed
+
+- **Ruff lint** — 70 violations resolved. Per-file `E402` ignore for
+  GTK UI files. Import blocks sorted, unused imports removed.
+- **CI dependencies** — Ubuntu job installs `.[dev]` for ruff + mypy
+  access. Fedora job uses native `python3-gobject` from dnf.
+
+### Fixed
+
+- **False refresh warning** — `pkcon get-updates` returns exit code 5
+  when there are no updates. `get_updates()` now checks no-update
+  markers before classifying non-zero return codes as errors.
+- **F541** — extraneous f-string prefix on Cancel button label.
+
+### Testing
+
+- **86 unit tests** (up from 62 in v0.3.1) covering config,
+  preferences, autostart, error classification, and accessibility.
+  Test coverage at 44%.
+
+---
+
 ## [0.3.1] — 2026-06-03
 
 ### Added

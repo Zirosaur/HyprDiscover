@@ -2,7 +2,7 @@
 %global app_id com.hyprdiscover.app
 
 Name:           %{pypi_name}
-Version:        0.3.1
+Version:        0.4.0
 Release:        1%{?dist}
 Summary:        Modern update manager for Fedora Hyprland
 
@@ -68,6 +68,14 @@ install -m644 assets/styles/hyprdiscover.css %{buildroot}%{_datadir}/%{pypi_name
 %{_datadir}/%{pypi_name}/styles/hyprdiscover.css
 
 %changelog
+* Thu Jun 04 2026 HyprDiscover Team - 0.4.0-1
+- Configuration GUI (Preferences window with instant-save)
+- Typed error classification (NETWORK, AUTH, LOCK, CONFLICT, INTERNAL)
+- XDG autostart integration via Preferences
+- Accessibility pass (labels on Switches, CheckButtons, ProgressBar)
+- Fedora GTK CI job (14 UI tests on native Fedora container)
+- 86-unit test suite (up from 62 in v0.3.1)
+
 * Wed Jun 03 2026 HyprDiscover Team - 0.3.1-1
 - CLI status output (--status / --status --json)
 - Argparse command routing with --help support

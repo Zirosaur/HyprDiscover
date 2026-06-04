@@ -305,43 +305,45 @@ Additional documentation is available:
 
 ## Status
 
-Current development stage: **v0.3.1**
+Current development stage: **v0.4.0**
 
 Implemented:
 
 - GTK4 interface with HeaderBar
 - Summary card with category breakdown
-- Sortable four-column package table
+- Sortable four-column package table with checkboxes
+- Selective package updates (Update Selected / Update All)
 - PackageKit integration (pkcon backend)
 - Update detection with NEVRA parsing
-- Update installation with progress
+- Real-time progress streaming
 - Transaction log viewer (expandable)
+- Cancel update operation
 - Reboot integration with confirmation dialog
+- Configuration GUI (Preferences window with instant-save)
+- Typed error classification (Network, Auth, Lock, Conflict, Internal)
+- XDG autostart integration (opt-in via Preferences)
 - About dialog, desktop entry, SVG icon
 - Waybar JSON output mode
+- CLI status output (--status, --status --json)
+- Background update checking (--check, systemd timer)
 - Single-instance launcher
 - Desktop notifications
+- Accessibility labels and tooltips
 - Configuration file (TOML)
 - Structured logging
 - CSS stylesheet for theming
-- Test infrastructure (19 unit tests)
-- CI pipeline (pytest, ruff, mypy)
-- RPM packaging spec
+- Test infrastructure (86 unit tests, 44% coverage)
+- CI pipeline (pytest, ruff, mypy, Fedora GTK container)
+- RPM packaging spec (COPR-ready)
 - Modular architecture (models → backends → services → ui)
 
 ### Planned Features
-
-#### v0.4
-
-- Background update checking (systemd timer)
-- Autostart support
-- Configuration GUI panel
-- Error classification
 
 #### v0.5
 
 - Flatpak support
 - Multi-backend update merging
+- Unified RPM + Flatpak view
 
 #### v0.6
 
