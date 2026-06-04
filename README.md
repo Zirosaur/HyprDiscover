@@ -108,10 +108,18 @@ hyprdiscover
 
 ### Development install (pip)
 
+Backend / CI development (pure Python, no GTK dependencies):
+
 ```bash
 git clone https://github.com/Zirosaur/HyprDiscover.git
 cd HyprDiscover
 pip install -e ".[dev]"
+```
+
+GTK development (includes PyGObject for the graphical interface):
+
+```bash
+pip install -e ".[dev,gtk]"
 ```
 
 Run:
