@@ -205,3 +205,19 @@ class TestClassifyError:
         output = "Could not connect to repository"
         err = _classify_error(5, output)
         assert err.raw_output == output
+
+    def test_no_updates_not_classified_as_error(self) -> None:
+        """get_updates should NOT log a warning when there are no updates."""
+        backend = PackageKitBackend()
+        stdout = (
+            "Transaction:\tGetting updates\n"
+            "Status:\tFinished\n"
+            "Results:\n"
+            "There are no updates available at this time.\n"
+        )
+        with patch("hyprdiscover.backends.packagekit.subprocess.run") as mock_run:
+            mock_run.return_value.returncode = 5
+            mock_run.return_value.stdout = stdout
+            mock_run.return_value.stderr = ""
+            packages = backend.get_updates()
+        assert packages == []

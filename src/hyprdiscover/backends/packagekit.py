@@ -92,6 +92,16 @@ def _parse_progress_line(line: str) -> UpdateProgress | None:
     return None
 
 
+_NO_UPDATES_MARKERS = (
+    "No packages",
+    "There are no updates",
+    "Tak ada paket",
+    "Tidak ada paket",
+    "Keine Pakete",
+    "Nessun pacchetto",
+)
+
+
 def _classify_error(returncode: int, output: str) -> UpdateError:
     if any(m in output for m in (
         "Could not connect",
@@ -187,8 +197,11 @@ class PackageKitBackend(PackageManagerBackend):
             env={"LANG": "C"},
             check=False,
         )
+        output = result.stdout + result.stderr
         if result.returncode != 0:
-            error = _classify_error(result.returncode, result.stdout + result.stderr)
+            if any(m in output for m in _NO_UPDATES_MARKERS):
+                return []
+            error = _classify_error(result.returncode, output)
             log.warning("Update check failed: [%s] %s", error.type, error.summary)
             return []
         return self._parse_update_list(result.stdout)
@@ -240,15 +253,7 @@ class PackageKitBackend(PackageManagerBackend):
         if self._cancelled:
             return UpdateResult(success=False, message=output, cancelled=True)
 
-        no_updates_markers = (
-            "No packages",
-            "There are no updates",
-            "Tak ada paket",
-            "Tidak ada paket",
-            "Keine Pakete",
-            "Nessun pacchetto",
-        )
-        if any(m in output for m in no_updates_markers):
+        if any(m in output for m in _NO_UPDATES_MARKERS):
             return UpdateResult(success=True, message=output, packages_updated=0)
 
         if process.returncode == 0:
