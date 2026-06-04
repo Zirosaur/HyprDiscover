@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass
 
-from hyprdiscover.models.enums import PackageStatus, UpdateCategory
+from hyprdiscover.models.enums import ErrorType, PackageStatus, UpdateCategory
 
 
 @dataclass
@@ -36,13 +35,23 @@ class PackageDetail:
 
 
 @dataclass
+class UpdateError:
+    type: ErrorType
+    summary: str
+    detail: str = ""
+    recoverable: bool = True
+    raw_output: str = ""
+
+
+@dataclass
 class UpdateResult:
     success: bool
     message: str
     requires_reboot: bool = False
     packages_updated: int = 0
-    error_code: Optional[int] = None
+    error_code: int | None = None
     cancelled: bool = False
+    error: UpdateError | None = None
 
 
 @dataclass
@@ -51,14 +60,14 @@ class BackendInfo:
     name: str
     version: str = ""
     available: bool = True
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @dataclass
 class UpdateProgress:
     status: str = ""
     percentage: int = 0
-    package: Optional[Package] = None
+    package: Package | None = None
     message: str = ""
     elapsed: float = 0.0
     remaining: float = 0.0

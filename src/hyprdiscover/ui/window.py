@@ -313,7 +313,12 @@ class MainWindow(Gtk.ApplicationWindow):
             self._updater.refresh()
             GLib.idle_add(self._package_list.set_packages, self._updater.packages)
         else:
-            self._notifier.update_failed()
+            msg = result.error.summary if result.error else "Update failed"
+            if result.error:
+                self._notifier.update_failed(result.error.summary)
+            else:
+                self._notifier.update_failed()
+            GLib.idle_add(self._summary.show_error, msg)
             GLib.idle_add(self._expander.set_expanded, True)
 
     # ── Progress ────────────────────────────────────────────────

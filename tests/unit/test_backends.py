@@ -5,8 +5,10 @@ from unittest.mock import MagicMock, patch
 
 from hyprdiscover.backends.packagekit import (
     PackageKitBackend,
+    _classify_error,
     _parse_progress_line,
 )
+from hyprdiscover.models.enums import ErrorType
 from hyprdiscover.models.package import Package, UpdateProgress
 
 
@@ -146,3 +148,60 @@ class TestPackageKitBackend:
             result = backend.install_updates()
         assert not result.success
         assert result.error_code == 1
+        assert result.error is not None
+        assert result.error.type == ErrorType.INTERNAL
+
+    def test_install_success_has_no_error(self) -> None:
+        backend = PackageKitBackend()
+        mock_proc = _make_popen_mock("Status:\tFinished\n", returncode=0)
+        with patch("hyprdiscover.backends.packagekit.subprocess.Popen",
+                   return_value=mock_proc):
+            result = backend.install_updates()
+        assert result.success
+        assert result.error is None
+
+    def test_install_sets_typed_error_on_failure(self) -> None:
+        backend = PackageKitBackend()
+        mock_proc = _make_popen_mock(
+            "Could not connect to repository\n", returncode=5,
+        )
+        with patch("hyprdiscover.backends.packagekit.subprocess.Popen",
+                   return_value=mock_proc):
+            result = backend.install_updates()
+        assert not result.success
+        assert result.error is not None
+        assert result.error.type == ErrorType.NETWORK
+        assert result.error.recoverable is True
+
+
+class TestClassifyError:
+    def test_network_error(self) -> None:
+        err = _classify_error(5, "Could not connect to repository")
+        assert err.type == ErrorType.NETWORK
+        assert err.recoverable is True
+
+    def test_auth_error(self) -> None:
+        err = _classify_error(5, "not authorized")
+        assert err.type == ErrorType.AUTH
+        assert err.recoverable is True
+
+    def test_lock_error(self) -> None:
+        err = _classify_error(5, "another transaction is running")
+        assert err.type == ErrorType.LOCK
+        assert err.recoverable is True
+
+    def test_conflict_error(self) -> None:
+        err = _classify_error(1, "dependency resolution failed")
+        assert err.type == ErrorType.CONFLICT
+        assert err.recoverable is False
+
+    def test_internal_error(self) -> None:
+        err = _classify_error(99, "Some unknown failure")
+        assert err.type == ErrorType.INTERNAL
+        assert err.recoverable is False
+        assert "99" in err.detail
+
+    def test_raw_output_preserved(self) -> None:
+        output = "Could not connect to repository"
+        err = _classify_error(5, output)
+        assert err.raw_output == output

@@ -127,7 +127,11 @@ class UpdateManager:
                 log.info("Updates installed successfully: %d packages", result.packages_updated)
             else:
                 self._set_status(UpdateStatus.FAILED)
-                log.warning("Update failed: %s", result.message[:200])
+                if result.error:
+                    log.warning("Update failed: [%s] %s — %s",
+                                result.error.type, result.error.summary, result.error.detail)
+                else:
+                    log.warning("Update failed: %s", result.message[:200])
 
             return result
 

@@ -7,11 +7,12 @@ import subprocess
 from collections.abc import Callable
 
 from hyprdiscover.backends.base import PackageManagerBackend
-from hyprdiscover.models.enums import UpdateCategory
+from hyprdiscover.models.enums import ErrorType, UpdateCategory
 from hyprdiscover.models.package import (
     BackendInfo,
     Package,
     PackageDetail,
+    UpdateError,
     UpdateProgress,
     UpdateResult,
 )
@@ -91,6 +92,68 @@ def _parse_progress_line(line: str) -> UpdateProgress | None:
     return None
 
 
+def _classify_error(returncode: int, output: str) -> UpdateError:
+    if any(m in output for m in (
+        "Could not connect",
+        "Cannot connect",
+        "Network",
+        "resolve host",
+        "timeout",
+    )):
+        return UpdateError(
+            type=ErrorType.NETWORK,
+            summary="Network unavailable",
+            detail="PackageKit could not reach the repository",
+            recoverable=True,
+            raw_output=output,
+        )
+
+    if any(m in output for m in (
+        "auth", "permission", "not authorized",
+        "Authentication", "Authorisation",
+    )):
+        return UpdateError(
+            type=ErrorType.AUTH,
+            summary="Permission denied",
+            detail="Administrative authorization is required",
+            recoverable=True,
+            raw_output=output,
+        )
+
+    if any(m in output for m in (
+        "another transaction",
+        "lock",
+        "already running",
+    )):
+        return UpdateError(
+            type=ErrorType.LOCK,
+            summary="Another update is in progress",
+            detail="Only one PackageKit transaction can run at a time",
+            recoverable=True,
+            raw_output=output,
+        )
+
+    if any(m in output for m in (
+        "conflict", "dependency", "unresolved",
+        "broken", "requires",
+    )):
+        return UpdateError(
+            type=ErrorType.CONFLICT,
+            summary="Package conflict detected",
+            detail="Dependencies could not be resolved",
+            recoverable=False,
+            raw_output=output,
+        )
+
+    return UpdateError(
+        type=ErrorType.INTERNAL,
+        summary="Unexpected error",
+        detail=f"pkcon exited with code {returncode}",
+        recoverable=False,
+        raw_output=output,
+    )
+
+
 class PackageKitBackend(PackageManagerBackend):
     """PackageKit backend using pkcon subprocess (interim implementation)."""
 
@@ -105,13 +168,16 @@ class PackageKitBackend(PackageManagerBackend):
         )
 
     def refresh_cache(self, force: bool = False) -> None:
-        subprocess.run(
+        result = subprocess.run(
             ["pkcon", "refresh", "force"] if force else ["pkcon", "refresh"],
             capture_output=True,
             text=True,
             env={"LANG": "C"},
             check=False,
         )
+        if result.returncode != 0:
+            error = _classify_error(result.returncode, result.stdout + result.stderr)
+            log.warning("Cache refresh failed: [%s] %s", error.type, error.summary)
 
     def get_updates(self) -> list[Package]:
         result = subprocess.run(
@@ -121,6 +187,10 @@ class PackageKitBackend(PackageManagerBackend):
             env={"LANG": "C"},
             check=False,
         )
+        if result.returncode != 0:
+            error = _classify_error(result.returncode, result.stdout + result.stderr)
+            log.warning("Update check failed: [%s] %s", error.type, error.summary)
+            return []
         return self._parse_update_list(result.stdout)
 
     def get_update_count(self) -> int:
@@ -192,6 +262,7 @@ class PackageKitBackend(PackageManagerBackend):
             success=False,
             message=output,
             error_code=process.returncode,
+            error=_classify_error(process.returncode, output),
         )
 
     def search_packages(self, query: str) -> list[PackageDetail]:

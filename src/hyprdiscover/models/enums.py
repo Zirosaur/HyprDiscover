@@ -35,3 +35,11 @@ class PackageStatus(StrEnum):
     UPDATING = "updating"
     INSTALLING = "installing"
     REMOVING = "removing"
+
+
+class ErrorType(StrEnum):
+    NETWORK = "network"
+    AUTH = "auth"
+    LOCK = "lock"
+    CONFLICT = "conflict"
+    INTERNAL = "internal"
