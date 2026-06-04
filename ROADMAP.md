@@ -81,12 +81,22 @@ Completed (2026-06-04):
 
 Foundation for multi-source awareness.
 
-Planned:
+Goals:
 
-- Flatpak backend implementing `PackageManagerBackend` ABC
-- Unified RPM + Flatpak update view
+- Show RPM updates in the package list
+- Show Flatpak updates in the package list
+- Unified update count across both sources
 - Source column in package list (RPM / Flatpak / COPR)
+- Update RPM packages (existing, unchanged)
+- Update Flatpak packages (new)
 - Multi-backend merge in `UpdateManager`
+
+Out of scope:
+
+- Package search
+- Software installation
+- Recommendation engine
+- COPR backend integration
 
 Users will see where each update originates — the first step
 toward informed software decisions.
