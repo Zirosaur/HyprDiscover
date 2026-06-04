@@ -76,12 +76,20 @@ class MainWindow(Gtk.ApplicationWindow):
         popover = Gtk.Popover()
         popover.set_parent(menu_btn)
 
+        prefs_item = Gtk.Button(label="Preferences")
+        prefs_item.add_css_class("flat")
+        prefs_item.set_halign(Gtk.Align.START)
+        prefs_item.connect("clicked", lambda b: (popover.popdown(), self._show_preferences()))
+
         about_item = Gtk.Button(label="About HyprDiscover")
         about_item.add_css_class("flat")
         about_item.set_halign(Gtk.Align.START)
         about_item.connect("clicked", lambda b: (popover.popdown(), show_about(self)))
 
-        popover.set_child(about_item)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        box.append(prefs_item)
+        box.append(about_item)
+        popover.set_child(box)
         menu_btn.set_popover(popover)
 
         header.pack_end(menu_btn)
@@ -384,6 +392,10 @@ class MainWindow(Gtk.ApplicationWindow):
             pass
 
     # ── Button Actions ──────────────────────────────────────────
+
+    def _show_preferences(self) -> None:
+        from hyprdiscover.ui.dialogs.preferences import PreferencesWindow
+        PreferencesWindow(self, self._config).present()
 
     def _cancel_operation(self) -> None:
         self._updater.cancel()
