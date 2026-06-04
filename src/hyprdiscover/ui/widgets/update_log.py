@@ -3,9 +3,9 @@ from __future__ import annotations
 import logging
 
 import gi
+
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
-from gi.repository import Pango
 
 log = logging.getLogger(__name__)
 

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import logging
 import threading
+from collections.abc import Callable
 from datetime import datetime
-from typing import Callable, Optional
 
 from hyprdiscover.backends.base import PackageManagerBackend
 from hyprdiscover.models.enums import UpdateStatus
@@ -23,11 +23,11 @@ class UpdateManager:
         self._backend = backend
         self._status = UpdateStatus.UP_TO_DATE
         self._packages: list[Package] = []
-        self._last_checked: Optional[datetime] = None
+        self._last_checked: datetime | None = None
         self._lock = threading.Lock()
 
-        self._on_status_changed: Optional[Callable[[UpdateStatus], None]] = None
-        self._on_progress: Optional[Callable[[UpdateProgress], None]] = None
+        self._on_status_changed: Callable[[UpdateStatus], None] | None = None
+        self._on_progress: Callable[[UpdateProgress], None] | None = None
 
     @property
     def status(self) -> UpdateStatus:
@@ -67,17 +67,17 @@ class UpdateManager:
         return sum(p.size for p in self._packages)
 
     @property
-    def last_checked(self) -> Optional[datetime]:
+    def last_checked(self) -> datetime | None:
         return self._last_checked
 
     @property
     def backend(self) -> PackageManagerBackend:
         return self._backend
 
-    def set_status_callback(self, callback: Optional[Callable[[UpdateStatus], None]]) -> None:
+    def set_status_callback(self, callback: Callable[[UpdateStatus], None] | None) -> None:
         self._on_status_changed = callback
 
-    def set_progress_callback(self, callback: Optional[Callable[[UpdateProgress], None]]) -> None:
+    def set_progress_callback(self, callback: Callable[[UpdateProgress], None] | None) -> None:
         self._on_progress = callback
 
     def refresh(self) -> None:
@@ -103,7 +103,7 @@ class UpdateManager:
 
     def install_updates(
         self,
-        packages: Optional[list[Package]] = None,
+        packages: list[Package] | None = None,
     ) -> UpdateResult:
         self._set_status(UpdateStatus.UPDATING)
         log.info("Starting update installation")

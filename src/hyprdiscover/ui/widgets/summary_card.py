@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import gi
-gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk
-from gi.repository import Pango
 
-from hyprdiscover.models.enums import UpdateStatus
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk, Pango
 
 
 class UpdateSummaryView(Gtk.Box):

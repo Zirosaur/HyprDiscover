@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import subprocess
-from typing import Optional
 
 log = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ class NotificationService:
     def __init__(self, app_name: str = "HyprDiscover") -> None:
         self._app_name = app_name
 
-    def send(self, title: str, message: str, urgency: Optional[str] = None) -> None:
+    def send(self, title: str, message: str, urgency: str | None = None) -> None:
         args = ["notify-send", title, message, "-a", self._app_name]
         if urgency:
             args.extend(["-u", urgency])

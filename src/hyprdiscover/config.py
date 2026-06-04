@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import tomllib
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 
 def _config_dir() -> Path:
@@ -27,9 +26,9 @@ class AppConfig:
     confirm_update: bool = False
     window_width: int = 700
     window_height: int = 500
-    dark_mode: Optional[bool] = None  # None = follow system
+    dark_mode: bool | None = None  # None = follow system
 
-    def save(self, path: Optional[Path] = None) -> None:
+    def save(self, path: Path | None = None) -> None:
         import tomllib
         del tomllib  # unused in save path
         path = path or _config_dir() / "config.toml"
@@ -37,7 +36,7 @@ class AppConfig:
 
     def _to_toml(self) -> str:
         lines = ["[hyprdiscover]"]
-        for f_name, f_value in self.__dataclass_fields__.items():
+        for f_name, _f_value in self.__dataclass_fields__.items():
             val = getattr(self, f_name)
             if val is None:
                 lines.append(f"{f_name} = \"\"")
@@ -50,7 +49,7 @@ class AppConfig:
         return "\n".join(lines) + "\n"
 
 
-def load_config(config_path: Optional[Path] = None) -> AppConfig:
+def load_config(config_path: Path | None = None) -> AppConfig:
     path = config_path or _config_dir() / "config.toml"
 
     if not path.exists():

@@ -4,14 +4,13 @@ import logging
 from pathlib import Path
 
 import gi
+
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gdk", "4.0")
-from gi.repository import Gdk
-from gi.repository import Gio
-from gi.repository import Gtk
+from gi.repository import Gdk, Gio, Gtk
 
 from hyprdiscover import __version__
-from hyprdiscover.config import AppConfig, load_config
+from hyprdiscover.config import load_config
 from hyprdiscover.logging import setup_logging
 
 log = logging.getLogger(__name__)

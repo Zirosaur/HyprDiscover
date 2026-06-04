@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from hyprdiscover.models.package import (
     BackendInfo,
+    Package,
     PackageDetail,
     UpdateProgress,
     UpdateResult,
 )
-from hyprdiscover.models.package import Package
 
 
 class PackageManagerBackend(ABC):
@@ -38,8 +38,8 @@ class PackageManagerBackend(ABC):
     @abstractmethod
     def install_updates(
         self,
-        packages: Optional[list[Package]] = None,
-        progress_callback: Optional[Callable[[UpdateProgress], None]] = None,
+        packages: list[Package] | None = None,
+        progress_callback: Callable[[UpdateProgress], None] | None = None,
     ) -> UpdateResult:
         ...
 
@@ -48,7 +48,7 @@ class PackageManagerBackend(ABC):
         ...
 
     @abstractmethod
-    def get_package_details(self, package_id: str) -> Optional[PackageDetail]:
+    def get_package_details(self, package_id: str) -> PackageDetail | None:
         ...
 
     @abstractmethod

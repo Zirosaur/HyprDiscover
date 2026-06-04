@@ -295,7 +295,7 @@ class PackageKitBackend(PackageManagerBackend):
     def _parse_update_list(self, output: str) -> list[Package]:
         packages: list[Package] = []
 
-        _STATUS_PREFIXES = {
+        _status_prefixes = {
             "Transaction",
             "Status",
             "Results",
@@ -318,7 +318,7 @@ class PackageKitBackend(PackageManagerBackend):
                 continue
 
             first_word = stripped.split(None, 1)[0].rstrip(":")
-            if first_word in _STATUS_PREFIXES:
+            if first_word in _status_prefixes:
                 continue
 
             matched = False

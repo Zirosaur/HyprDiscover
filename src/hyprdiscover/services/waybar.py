@@ -24,7 +24,11 @@ def run_waybar() -> None:
             text = "󰄬"
             tooltip = "System is up to date"
 
-        output = {"text": text, "tooltip": tooltip, "class": "updates-available" if count else "up-to-date"}
+        output = {
+            "text": text,
+            "tooltip": tooltip,
+            "class": "updates-available" if count else "up-to-date",
+        }
 
     except Exception:
         output = {"text": "⚠", "tooltip": "Unable to check for updates", "class": "error"}

@@ -18,6 +18,8 @@ src/hyprdiscover/models/__init__.py
 src/hyprdiscover/models/enums.py
 src/hyprdiscover/models/package.py
 src/hyprdiscover/services/__init__.py
+src/hyprdiscover/services/background.py
+src/hyprdiscover/services/cli_status.py
 src/hyprdiscover/services/notifications.py
 src/hyprdiscover/services/reboot.py
 src/hyprdiscover/services/update_manager.py
@@ -32,4 +34,5 @@ src/hyprdiscover/ui/widgets/__init__.py
 src/hyprdiscover/ui/widgets/package_list.py
 src/hyprdiscover/ui/widgets/progress_bar.py
 src/hyprdiscover/ui/widgets/status_header.py
+src/hyprdiscover/ui/widgets/summary_card.py
 src/hyprdiscover/ui/widgets/update_log.py
