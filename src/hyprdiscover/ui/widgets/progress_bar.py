@@ -15,6 +15,7 @@ class AnimatedProgressBar(Gtk.Box):
         self._bar = Gtk.ProgressBar()
         self._bar.set_visible(False)
         self._bar.set_hexpand(True)
+        self._bar.update_property([Gtk.AccessibleProperty.LABEL], ["Update progress"])
 
         self._label = Gtk.Label()
         self._label.set_visible(False)
@@ -47,3 +48,4 @@ class AnimatedProgressBar(Gtk.Box):
     def set_label(self, text: str) -> None:
         self._label.set_text(text)
         self._label.set_visible(True)
+        self._bar.update_property([Gtk.AccessibleProperty.DESCRIPTION], [text])

@@ -19,6 +19,7 @@ def _make_switch_row(label: str, active: bool, on_toggle: callable) -> Gtk.ListB
     sw = Gtk.Switch()
     sw.set_active(active)
     sw.set_valign(Gtk.Align.CENTER)
+    sw.update_property([Gtk.AccessibleProperty.LABEL], [label])
     sw.connect("notify::active", lambda s, _p: on_toggle(s.get_active()))
 
     box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
@@ -48,6 +49,7 @@ def _make_dropdown_row(
     dd = Gtk.DropDown.new(model)
     dd.set_selected(selected)
     dd.set_valign(Gtk.Align.CENTER)
+    dd.update_property([Gtk.AccessibleProperty.LABEL], [label])
     dd.connect("notify::selected", lambda d, _p: on_change(d.get_selected()))
 
     box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)

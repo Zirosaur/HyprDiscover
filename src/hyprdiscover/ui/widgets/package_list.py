@@ -230,6 +230,10 @@ class PackageListView(Gtk.Box):
         if row is None:
             return
         cb: Gtk.CheckButton = item.get_child()
+        cb.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [f"Select {row.name} version {row.version}"],
+        )
         handler_id = cb.connect("toggled", self._on_check_toggled, row)
         item.check_handler_id = handler_id
         cb.handler_block(handler_id)

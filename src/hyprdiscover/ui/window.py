@@ -68,10 +68,13 @@ class MainWindow(Gtk.ApplicationWindow):
         self.set_titlebar(header)
 
         discover_btn = Gtk.Button(label="Open Discover")
+        discover_btn.set_tooltip_text("Open KDE Plasma Discover")
         discover_btn.connect("clicked", lambda b: self._open_discover())
 
         menu_btn = Gtk.MenuButton()
         menu_btn.set_icon_name("open-menu-symbolic")
+        menu_btn.update_property([Gtk.AccessibleProperty.LABEL], ["Menu"])
+        menu_btn.set_tooltip_text("Menu")
 
         popover = Gtk.Popover()
         popover.set_parent(menu_btn)
@@ -105,29 +108,32 @@ class MainWindow(Gtk.ApplicationWindow):
         self._refresh_btn = Gtk.Button(
             label=f"  {self._REFRESH_ICON}  Refresh  "
         )
+        self._refresh_btn.set_tooltip_text("Check for available updates")
         self._refresh_btn.connect("clicked", lambda b: self._async_refresh())
 
         self._update_selected_btn = Gtk.Button(
             label=f"  {self._UPDATE_ICON}  Update Selected  "
         )
+        self._update_selected_btn.set_tooltip_text("Install only checked packages")
         self._update_selected_btn.connect("clicked", lambda b: self._async_install_selected())
-        self._update_selected_btn.add_css_class("suggested-action")
-        self._update_selected_btn.set_sensitive(False)
 
         self._update_btn = Gtk.Button(
             label=f"  {self._UPDATE_ICON}  Update All  "
         )
+        self._update_btn.set_tooltip_text("Install all available updates")
         self._update_btn.connect("clicked", lambda b: self._async_install_all())
 
         self._cancel_btn = Gtk.Button(
             label="  \U000F0156  Cancel  "
         )
+        self._cancel_btn.set_tooltip_text("Stop the current update")
         self._cancel_btn.connect("clicked", lambda b: self._cancel_operation())
         self._cancel_btn.set_sensitive(False)
 
         self._reboot_btn = Gtk.Button(
             label=f"  {self._REBOOT_ICON}  Reboot  "
         )
+        self._reboot_btn.set_tooltip_text("Restart the system to complete updates")
         self._reboot_btn.connect("clicked", lambda b: self._on_reboot())
         self._reboot_btn.add_css_class("destructive-action")
         self._reboot_btn.set_visible(False)
