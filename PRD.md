@@ -2,103 +2,140 @@
 
 ## Vision
 
-HyprDiscover is a modern update manager for Fedora Hyprland that provides a
-lightweight, secure, fast, and integrated system update experience without
-requiring KDE Plasma or GNOME Software.
+HyprDiscover helps Fedora users make correct software decisions
+without needing to understand RPM, Flatpak, COPR, or any other
+packaging system.
 
-The primary goal is to deliver an update experience comparable to Discover
-or GNOME Software, but designed specifically for Hyprland users.
+It recommends the right installation method, explains why, and
+provides tools to install, update, and remove software securely.
 
 ---
 
 ## Problem Statement
 
-Fedora Hyprland users currently must:
+The Linux packaging ecosystem is fragmented. On Fedora alone, users
+encounter RPM repositories, Flatpak, COPR, AppImage, and more. Each
+has different characteristics:
 
-- Use the terminal to perform system updates
-- Remember PackageKit or DNF commands
-- Install KDE Discover (which pulls in large KDE dependencies)
-- Go without a native update manager integrated with Waybar and Hyprland
+- RPM packages integrate with the system but can conflict
+- Flatpak offers sandboxing but bundles entire runtimes
+- COPR provides community packages but varies in trust and maintenance
+- AppImage is portable but has no update mechanism
+
+Fedora users are expected to understand these differences and make
+informed decisions. Most cannot.
+
+The result:
+
+- Users install from the wrong source and encounter problems later
+- Users cannot cleanly uninstall software they no longer need
+- Users see update discrepancies between tools and don't know why
+- Users follow terminal commands from blog posts without understanding them
 
 ---
 
 ## Target Users
 
-### Primary Users
+### Primary Persona: The Fedora Beginner
 
-- Fedora Hyprland users
-- Waybar users
-- PackageKit users
+A Fedora user who is comfortable using their computer but does not
+understand Linux packaging. They want to install software safely and
+keep it updated without becoming a system administrator.
 
-### Secondary Users
+Pain points:
 
-- Sway users
-- River users
-- Niri users
-- Other Wayland compositor users
+- "I found this app — should I use Flatpak or RPM?"
+- "What is COPR? Is it safe to install from there?"
+- "Discover shows updates but HyprDiscover doesn't. Why?"
+- "How do I remove this completely without leaving config files?"
+
+### Secondary Persona: The Hyprland Enthusiast
+
+An existing HyprDiscover user. Uses Hyprland as their daily driver.
+Values lightweight tools, Waybar integration, CLI modes, and
+background update checking. Wants control without complexity.
+
+### Tertiary Persona: The Minimalist
+
+A Fedora user who avoids GNOME Software and KDE Discover entirely.
+Uses the terminal for most tasks but wants a lightweight GUI for
+software management. Values speed, simplicity, and explanations
+over catalogs and screenshots.
 
 ---
 
 ## Product Goals
 
-### Goal 1
+### Goal 1: Source Intelligence
 
-Provide a graphical interface for Fedora RPM updates.
+Help users understand where their software comes from and which
+source is recommended for each package.
 
-### Goal 2
+### Goal 2: Unified Management
 
-Provide Flatpak integration.
+Provide a single view for RPM, Flatpak, and COPR software — updates,
+installation, and removal — without requiring users to switch between
+tools.
 
-### Goal 3
+### Goal 3: Guided Decisions
 
-Provide secure offline updates.
+Recommend the correct installation method with plain-language
+explanations. Users should not need to understand packaging systems
+to make good choices.
 
-### Goal 4
+### Goal 4: Clean Lifecycle
 
-Integrate with Waybar and Hyprland.
+Support the full software lifecycle: discover → install → update →
+remove. Clean uninstallation removes configuration and application
+data, not just the package.
 
-### Goal 5
+### Goal 5: Lightweight & Portable
 
-Become the standard update manager for Fedora Hyprland.
+Remain a lightweight GTK4 application that works on any Wayland
+compositor or desktop environment on Fedora. No DE dependency.
+
+---
+
+## Guidance Philosophy
+
+HyprDiscover recommends. You decide.
+
+Every recommendation comes with an explanation. The system never
+hides options — it presents the recommended choice alongside
+alternatives, with clear reasoning for each.
+
+HyprDiscover doesn't show you everything.
+It shows you what matters.
 
 ---
 
 ## Non-Goals
 
-HyprDiscover is not intended to be:
+HyprDiscover explicitly does NOT aim to be:
 
-- An app store
-- A general software center
-- A full replacement for KDE Discover
-- A replacement for DNF
+- **An app store catalog** — no browsing thousands of applications.
+  HyprDiscover helps with the software you already know you want.
 
-The core focus is system updates.
+- **A screenshot gallery** — no rich media hosting. Guidance is
+  text-based: explanations, not eye candy.
 
----
+- **A ratings and reviews platform** — no user-generated content,
+  no star ratings, no comment moderation.
 
-## MVP Features
+- **A replacement for DNF or flatpak CLI** — complementary, not
+  competitive. Power users can always drop to the terminal.
 
-### Update Detection
+- **A cross-distribution tool** — Fedora only. The architecture
+  supports other distributions via the `PackageManagerBackend` ABC,
+  but the project ships and maintains Fedora backends only.
 
-- Scan for PackageKit updates
-- Display the number of available updates
+- **An AppImage repository** — no AppImageHub integration, no
+  AppImage update management. HyprDiscover may detect installed
+  AppImages and recommend alternatives (e.g., "Use the Flatpak
+  version instead"), but will not manage AppImages directly.
 
-### Update Execution
-
-- Install system updates
-- Display transaction logs
-
-### Status Management
-
-- Up to date
-- Updates available
-- Updating
-- Update completed
-- Update failed
-
-### Reboot Integration
-
-- Reboot after update completion
+- **A Snap manager** — Snap is Canonical-specific and not relevant
+  to Fedora users.
 
 ---
 
@@ -125,30 +162,60 @@ The core focus is system updates.
 - CI pipeline: Ubuntu (pytest, ruff, mypy) + Fedora GTK container
 - RPM packaging spec (COPR-ready)
 
+The MVP (v0.1–v0.2) delivered basic update detection and execution.
+See CHANGELOG.md for full release history.
+
 ---
 
-## Future Features
+## Roadmap
 
-### v0.5
+### v0.5 — Flatpak Integration (Foundation)
 
-- Flatpak support
+- Flatpak backend implementing `PackageManagerBackend` ABC
 - Unified RPM + Flatpak update view
-- Multi-backend merge
+- Source column in package list (RPM / Flatpak / COPR)
+- Multi-backend merge in `UpdateManager`
 
-### v0.6
+### v0.6 — Recommendation Engine (The Differentiator)
 
-- Native PackageKit D-Bus integration
-- Real progress signals
-- Cancellable transactions
+- Installation method recommendations (Flatpak vs RPM vs COPR)
+- Explanation text for each recommendation
+- COPR trust indicators
+- Update discrepancy explanations between sources
+- Update context (requires reboot, Flatpak runtime, advisory info)
+- Native PackageKit D-Bus backend (real progress, structured errors)
 
-### v0.7
+### v0.7 — Software Discovery
 
+- Package search across RPM + Flatpak
+- "How to install" guidance with recommended method
+- Install/uninstall via PackageKit + Flatpak backend
+- Installed-software inventory with source annotations
+
+### v0.8 — Software Lifecycle
+
+- Clean uninstall (remove configs + application data)
+- Package history/timeline
+- Disk usage per application
+- Export/import installed package list
 - Offline updates via systemd
-- Reboot-and-install workflow
 
-### v1.0
+### v0.9 — Polish
 
-- Production-ready Fedora Hyprland update manager in COPR and Flathub
+- Internationalization (gettext, Weblate)
+- Full accessibility compliance
+- Keyboard-first navigation
+- UI refinements (responsive, error states)
+- Stability improvements
+
+### v1.0 — Production Release
+
+- Stable software guidance tool for Fedora
+- Native PackageKit D-Bus integration
+- Flatpak support with unified view
+- COPR package repository
+- Flathub submission
+- Community documentation
 
 ---
 
@@ -156,9 +223,9 @@ The core focus is system updates.
 
 Users can:
 
-1. Open HyprDiscover
-2. View available updates
-3. Install updates
-4. Reboot when required
-
-All without opening a terminal.
+1. Open HyprDiscover and see available updates from all sources
+2. Understand where each update comes from and why it matters
+3. Receive a recommendation when multiple installation methods exist
+4. Install software using the recommended method
+5. Remove software cleanly, including configuration and data
+6. Do all of the above without opening a terminal or reading documentation

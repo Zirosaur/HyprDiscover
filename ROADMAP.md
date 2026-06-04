@@ -15,24 +15,29 @@ Implemented:
 - TOML configuration file
 - Structured logging
 - RPM packaging spec (COPR-ready)
-- CI pipeline (pytest, ruff, mypy)
 
 ### UI / UX
 - GTK4 + Libadwaita interface with HeaderBar
 - Summary card with category breakdown (security, bug fix, enhancement, other)
-- Sortable four-column package table (icon, type, package, version)
+- Sortable package table with checkboxes for selective updates
 - Nerd Font category icons
 - Expandable package details with transaction logs
-- Animated progress bar during updates
+- Real-time progress reporting via Popen streaming
 - Confirmation dialogs for destructive actions
 - CSS stylesheet for theming
+- Accessibility labels on all interactive controls
+- Tooltips on action buttons
 
 ### Package Management
 - PackageKit integration via `pkcon` subprocess
-- NEVRA-based package name/version parsing
+- NEVRA-based package name/version/arch parsing
+- PackageKit ID (`name;version;arch;repo`) for multi-arch environments
 - Multi-word category detection ("Bug fix")
 - Status line filtering
 - Per-category update counts
+- Selective package updates with checkbox column
+- Cancel update operation with proper state handling
+- Typed error classification (NETWORK, AUTH, LOCK, CONFLICT, INTERNAL)
 
 ### Desktop Integration
 - Waybar JSON output mode (`--waybar`)
@@ -44,23 +49,9 @@ Implemented:
 - Autostart integration via Preferences
 - Last checked timestamp
 
-### Package Management
-- PackageKit integration via `pkcon` subprocess
-- NEVRA-based package name/version/arch parsing
-- PackageKit ID (`name;version;arch;repo`) for multi-arch environments
-- Multi-word category detection ("Bug fix")
-- Status line filtering
-- Per-category update counts
-- Selective package updates with checkbox column
-- Real-time progress reporting via Popen streaming
-- Cancel update operation with proper state handling
-- Typed error classification (NETWORK, AUTH, LOCK, CONFLICT, INTERNAL)
-
 ### Preferences & Configuration
 - TOML configuration file
 - Configuration GUI with instant-save (6 settings + Reset to Defaults)
-- Accessibility labels on all interactive controls
-- Tooltips on action buttons
 
 ### CLI
 - Argparse command routing with `--help` support
@@ -70,7 +61,6 @@ Implemented:
 - 86 unit tests covering models, enums, backends, services, CLI, UI, Unicode
 - Test infrastructure with pytest + pytest-cov
 - GitHub Actions: Ubuntu (3.12 + 3.13, ruff, mypy) + Fedora GTK container
-- RPM packaging spec (COPR-ready)
 
 ---
 
@@ -81,55 +71,82 @@ Completed (2026-06-04):
 - Background update checking via systemd timer
 - Autostart `.desktop` file for session login
 - Configuration GUI (preferences panel)
-- Error classification (NetworkError, AuthError, LOCK, CONFLICT, INTERNAL)
+- Error classification (NETWORK, AUTH, LOCK, CONFLICT, INTERNAL)
 - Accessibility pass (ATK labels, tooltips)
 - Increased test coverage (19 → 86)
 
 ---
 
-## v0.5 — Flatpak Support
+## v0.5 — Flatpak Integration
+
+Foundation for multi-source awareness.
 
 Planned:
 
 - Flatpak backend implementing `PackageManagerBackend` ABC
 - Unified RPM + Flatpak update view
+- Source column in package list (RPM / Flatpak / COPR)
 - Multi-backend merge in `UpdateManager`
-- Flatpak package list with source column
+
+Users will see where each update originates — the first step
+toward informed software decisions.
 
 ---
 
-## v0.6 — Native Backend
+## v0.6 — Recommendation Engine
+
+The differentiator. Guidance becomes a feature.
 
 Planned:
 
-- `PackageKitNativeBackend` using `gi.repository.PackageKitGlib`
-- Real progress signals (percentage, elapsed, remaining)
-- Cancellable transactions
-- Structured error codes (no more text parsing)
-- Remove `pkcon` subprocess dependency
-- Online update mode with restart-required detection
+- Installation method recommendations (Flatpak vs RPM vs COPR)
+- Explanation text for each recommendation
+- COPR trust indicators
+- Update discrepancy explanations between sources
+- Update context (requires reboot, Flatpak runtime, advisory info)
+- Native PackageKit D-Bus backend
+  - Real progress signals (percentage, elapsed, remaining)
+  - Structured error codes (no more text parsing)
+  - Removes `pkcon` subprocess dependency
 
 ---
 
-## v0.7 — Offline Updates
+## v0.7 — Software Discovery
+
+Builds on recommendation data to help users find software.
 
 Planned:
 
-- PackageKit `PrepareOffline` workflow
-- Systemd offline update service integration
-- Reboot-and-install UI flow
-- Update preparation status reporting
+- Package search across RPM + Flatpak
+- "How to install" guidance with recommended method
+- Install/uninstall via PackageKit + Flatpak backend
+- Installed-software inventory with source annotations
 
 ---
 
-## v0.8 — Polish
+## v0.8 — Software Lifecycle
+
+Closes the loop: discover → install → update → remove.
+
+Planned:
+
+- Clean uninstall (remove configs + application data)
+- Package history/timeline
+- Disk usage per application
+- Export/import installed package list
+- Offline updates via systemd
+- Reboot-and-install workflow
+
+---
+
+## v0.9 — Polish
 
 Planned:
 
 - Internationalization (gettext, Weblate)
 - Full accessibility compliance
+- Keyboard-first navigation
 - UI refinements (responsive, error states)
-- Package history and rollback (via PackageKit)
 - Stability improvements
 
 ---
@@ -138,15 +155,16 @@ Planned:
 
 Goals:
 
-- Stable update manager for Fedora Hyprland
+- Stable software guidance tool for Fedora
 - Native PackageKit D-Bus integration
-- Flatpak support
-- Offline updates
-- Waybar + desktop integration
+- Flatpak support with unified multi-source view
+- Recommendation engine
+- Full lifecycle: install, update, uninstall
 - COPR package repository
 - Flathub submission
 - Community documentation
 
 Long-term vision:
 
-Become the preferred update manager for Fedora Hyprland users.
+Help Fedora users make the right software decisions —
+without becoming packaging experts.

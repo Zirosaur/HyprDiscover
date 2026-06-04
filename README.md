@@ -4,11 +4,11 @@
 
 # HyprDiscover
 
-A modern update manager for Fedora Hyprland.
+Software guidance for Fedora users.
 
-HyprDiscover provides a lightweight graphical interface for managing system
-updates on Fedora-based Hyprland systems without requiring KDE Plasma or
-GNOME Software.
+HyprDiscover helps you understand what to install, which source to
+choose, how to update safely, and how to remove software cleanly —
+all from a lightweight GTK4 interface.
 
 ---
 
@@ -18,19 +18,36 @@ GNOME Software.
 
 ---
 
+## What makes HyprDiscover different?
+
+| Tool | Approach |
+|------|----------|
+| **KDE Discover** | App store — browse thousands of applications |
+| **GNOME Software** | App store — ratings, reviews, screenshots |
+| **HyprDiscover** | Software advisor — explains *why* and recommends *which* |
+
+HyprDiscover doesn't show you everything.
+It shows you what matters.
+
+---
+
 ## Features
 
 - **GTK4 + Libadwaita** graphical interface
 - **Summary card** — total updates, security, bug fixes, enhancements at a glance
-- **Sortable package table** — four-column view (icon, type, package, version)
-- **Category icons** — Nerd Font glyphs for security, bug fix, enhancement, other
+- **Sortable package table** with checkboxes for selective updates
+- **Real-time progress streaming** during updates
+- **Cancel update** operation
+- **Preferences window** — 6 configurable settings with instant-save
+- **Typed error classification** — Network, Auth, Lock, Conflict, Internal
+- **XDG autostart** integration (opt-in via Preferences)
+- **Accessibility labels** on controls, tooltips on action buttons
 - **PackageKit integration** — update detection and installation
 - **Update log viewer** — expandable transaction details
-- **Progress bar** — pulse animation during updates
 - **Reboot button** — appears after successful updates
-- **About dialog**
-- **KDE Discover launcher** — fallback to Plasma's update tool
 - **Waybar integration** — JSON output mode (`--waybar`) with update count indicator
+- **CLI status output** — `--status` and `--status --json` modes
+- **Background update checking** — `--check` mode for systemd timer
 - **Single-instance launcher** — shell wrapper with Hyprland focuswindow
 - **Desktop notifications** — via `notify-send`
 - **Configuration file** — TOML at `~/.config/hyprdiscover/config.toml`
@@ -44,22 +61,19 @@ GNOME Software.
 
 ## Why HyprDiscover?
 
-Fedora users running Hyprland often rely on:
+Fedora users face a fragmented packaging ecosystem. RPM, Flatpak,
+COPR, and AppImage each have different characteristics — and users are
+expected to understand them all.
 
-- Terminal commands
-- KDE Discover
-- GNOME Software
-
-HyprDiscover aims to provide a dedicated update manager designed specifically
-for Hyprland environments.
+HyprDiscover removes the guesswork by guiding you toward the right
+software decisions, with explanations you can understand.
 
 The project focuses on:
 
-- Simplicity
-- Performance
+- Guidance over catalog
 - Fedora integration
-- Hyprland integration
-- Security
+- Performance and simplicity
+- Lightweight — no DE dependency
 
 ---
 
@@ -339,26 +353,29 @@ Implemented:
 
 ### Planned Features
 
-#### v0.5
+#### v0.5 — Flatpak Integration
 
-- Flatpak support
-- Multi-backend update merging
-- Unified RPM + Flatpak view
+- Flatpak support via `PackageManagerBackend` ABC
+- Unified RPM + Flatpak update view
+- Source column showing where each package originates
 
-#### v0.6
+#### v0.6 — Recommendation Engine
 
-- Native PackageKit D-Bus integration
-- Real progress signals
-- Cancellable transactions
+- Flatpak vs RPM recommendation logic
+- COPR trust indicators
+- Update discrepancy explanations
+- Native PackageKit D-Bus backend
 
-#### v0.7
+#### v0.7 — Software Discovery
 
-- Offline updates (systemd)
-- Reboot-and-install workflow
+- Package search across sources
+- Install/uninstall via PackageKit + Flatpak
+- Installed-software inventory
 
 #### v1.0
 
-- Production-ready Fedora Hyprland update manager
+- Stable software guidance tool for Fedora
+- COPR package + Flathub submission
 
 ---
 
@@ -380,8 +397,8 @@ Please read CONTRIBUTING.md before submitting changes.
 
 ## Acknowledgements
 
-This project is inspired by the simplicity of modern Linux update managers
-while focusing specifically on the needs of Fedora Hyprland users.
+HyprDiscover was created to help Fedora users make informed software
+decisions without becoming packaging experts.
 
-HyprDiscover aims to provide a lightweight, native update experience without
-requiring a full desktop environment.
+It started as an update manager for Hyprland. It's growing into a
+software guidance tool for anyone running Fedora.
