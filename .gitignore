@@ -23,4 +23,4 @@ dist/
 *.swp
 
 # Fedora / Linux
-.DS_Store
+.DS_Store.coverage
